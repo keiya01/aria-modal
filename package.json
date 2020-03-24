@@ -20,7 +20,8 @@
   "license": "MIT",
   "scripts": {
     "start": "babel src -d public --extensions '.ts' && serve ./public",
-    "build": "babel src -d dist --extensions '.ts'"
+    "build": "babel src -d dist --extensions '.ts'",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -28,6 +29,9 @@
     "@babel/plugin-proposal-class-properties": "^7.8.3",
     "@babel/preset-env": "^7.9.0",
     "@babel/preset-typescript": "^7.9.0",
+    "@types/jest": "^25.1.4",
+    "babel-jest": "^25.1.0",
+    "jest": "^25.1.0",
     "serve": "^11.3.0"
   }
 }
