@@ -2,7 +2,8 @@
   "name": "web-components-aria-modal",
   "version": "0.0.1",
   "description": "Accessible modal with Web Components",
-  "main": "dist/index.js",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.esm.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/keiya01/web-components-aria-modal.git"
@@ -19,7 +20,7 @@
   "homepage": "https://github.com/keiya01/web-components-aria-modal#readme",
   "license": "MIT",
   "scripts": {
-    "start": "babel src -d public --extensions '.ts' && serve ./public",
+    "start": "babel src -d example --extensions '.ts' && serve ./example",
     "build": "babel src -d dist --extensions '.ts'",
     "test": "jest"
   },
