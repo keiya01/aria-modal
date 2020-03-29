@@ -1,1 +1,0 @@
-export { AriaModal } from './aria-modal';
