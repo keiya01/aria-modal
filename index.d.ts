@@ -1,6 +1,6 @@
 export default class AriaModalElement extends HTMLElement {
-  firstFocus: HTMLElement;
-  lastFocus: HTMLElement | null;
+  open: boolean;
+  display: string;
 }
 
 declare global {
