@@ -4,6 +4,7 @@
   "description": "Accessible modal with Web Components",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
+  "types": "index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/keiya01/web-components-aria-modal.git"
@@ -20,8 +21,8 @@
   "homepage": "https://github.com/keiya01/web-components-aria-modal#readme",
   "license": "MIT",
   "scripts": {
-    "start": "babel src -d example --extensions '.ts' && serve ./example",
-    "build": "babel src -d dist --extensions '.ts'",
+    "start": "rollup -c && cp ./dist/index.umd.js ./example && serve ./example",
+    "build": "rollup -c",
     "test": "jest"
   },
   "devDependencies": {
@@ -33,6 +34,9 @@
     "@types/jest": "^25.1.4",
     "babel-jest": "^25.1.0",
     "jest": "^25.1.0",
-    "serve": "^11.3.0"
+    "rollup": "^2.2.0",
+    "rollup-plugin-typescript2": "^0.27.0",
+    "serve": "^11.3.0",
+    "typescript": "^3.8.3"
   }
 }
