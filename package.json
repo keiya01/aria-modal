@@ -21,7 +21,8 @@
   "homepage": "https://github.com/keiya01/web-components-aria-modal#readme",
   "license": "MIT",
   "scripts": {
-    "start": "rollup -c && cp ./dist/index.umd.js ./example && serve ./example",
+    "start": "serve ./example",
+    "start:dev": "rollup -c && cp ./dist/index.umd.js ./example && serve ./example",
     "build": "rollup -c",
     "test": "jest"
   },
