@@ -1,33 +1,40 @@
+const roles = ['dialog', 'alertdialog'];
+
 export default class AriaModalElement extends HTMLElement {
   public open: boolean;
   public display: string;
-  private lastFocus: HTMLElement | null;
-  private ignoreFocusChanges: boolean;
+  private focusAfterClose: HTMLElement | null;
+  private firstFocus: HTMLElement;
+  private node: HTMLElement;
   constructor() {
     super();
 
-    this.lastFocus = null;
-    this.ignoreFocusChanges = false;
+    this.focusAfterClose = null;
+    this.firstFocus = this.getElementByAttribute('first-focus');
+    this.node = this.getElementByAttribute('node');
 
-    this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
-    this.validateAriaAttrs(['aria-describedby']);
+    const labelAttr = this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
+    const describeAttr = this.validateAriaAttrs(['aria-describedby']);
 
-    const role = this.getAttribute('role');
-    if(!role || !['dialog', 'alertdialog'].includes(role)) {
-      throw new Error('role attribution is assigned invalid value');
+    const label = this.getAttribute(labelAttr);
+    const describe = this.getAttribute(describeAttr);
+
+    const role = this.getAttribute('role') || 'dialog';
+    if(!roles.includes(role)) {
+      throw new Error(`role attribution is assigned invalid value. assignable value are ${roles.join(', ')}.`);
     }
 
     this.display = this.getAttribute('display') || 'block';
 
-    this.open = this.getAttribute('open') === 'block';
+    this.open = this.getAttribute('open') === 'true';
 
     const template = this.template`
       <div id="aria-modal-backdrop" class="backdrop" style="display:${this.open ? this.display : 'none'};">
-        <div id="first-descendant" ${this.open ? 'tabindex=0' : ''}></div>
-        <div id="aria-modal" class="modal" role="${role}" aria-modal="true" tabindex="-1">
+        <div id="first-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
+        <div id="aria-modal" class="modal" role="${role}" aria-modal="true" ${labelAttr}=${label} ${describeAttr}=${describe}>
           <slot name="modal"></slot>
         </div>
-        <div id="last-descendant" ${this.open ? 'tabindex=0' : ''}></div>
+        <div id="last-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
       </div>
     `;
     const shadowRoot = this.attachShadow({ mode: 'open' });
@@ -60,8 +67,8 @@ export default class AriaModalElement extends HTMLElement {
 
     shadowRoot.appendChild(template.content.cloneNode(true));
 
-    shadowRoot.getElementById('first-descendant')?.addEventListener('focus', this.moveFocus, true);
-    shadowRoot.getElementById('last-descendant')?.addEventListener('focus', this.moveFocus, true);
+    shadowRoot.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
+    shadowRoot.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
   }
 
   static get observedAttributes() {
@@ -78,31 +85,21 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocus, true);
-    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocus, true);
+    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
+    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
   }
-
+  
   adoptedCallback() {
-    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocus, true);
-    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocus, true);
+    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
+    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
   }
 
   private trapFocus() {
-    if(this.ignoreFocusChanges) {
-      return;
-    }
-    const id = this.getAttribute('first-focus')
-    let firstFocus = null;
-    if(id) {
-      firstFocus = document.getElementById(this.getAttribute('first-focus') || '');
-    } else {
-      firstFocus = this.shadowRoot?.getElementById('aria-modal');
-    }
     if(this.open) {
-      this.lastFocus = document.activeElement as HTMLElement;
-      firstFocus?.focus();
+      this.focusAfterClose = document.activeElement as HTMLElement;
+      this.firstFocus.focus();
     } else {
-      this.lastFocus?.focus();
+      this.focusAfterClose?.focus();
     }
   }
 
@@ -127,7 +124,7 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private validateAriaAttrs(arr: string[]) {
-    const validArr = [];
+    const validArr: string[] = [];
     arr.map(val => {
       if(this.getAttribute(val)) {
         validArr.push(val);
@@ -139,6 +136,7 @@ export default class AriaModalElement extends HTMLElement {
     if(validArr.length >= 2) {
       throw new Error(`${arr.join(' or ')} can include just one on aria-modal.`);
     }
+    return validArr[0];
   }
 
   private join(template: TemplateStringsArray, values: any[]) {
@@ -162,10 +160,55 @@ export default class AriaModalElement extends HTMLElement {
     return template;
   }
 
-  private moveFocus = () => {
-    const modal = this.shadowRoot?.getElementById('aria-modal');
-    if(modal) {
-      modal.focus();
+  private isFocusable(target: HTMLElement, element: HTMLElement) {
+    return document.activeElement !== target && document.activeElement === element;
+  }
+
+  focusFirstElement(target: HTMLElement, node: HTMLElement) {
+    const children = node.children;
+    for(let i = 0; i < children.length; i++) {
+      const child = children[i] as HTMLElement;
+      child.focus();
+      if(this.isFocusable(target, child) || this.focusFirstElement(target, child)) {
+        return true;
+      }
     }
+    return false;
+  }
+
+  focusLastElement(target: HTMLElement, node: HTMLElement) {
+    const children = node.children;
+    for(let i = children.length - 1; i >= 0; i--) {
+      const child = children[i] as HTMLElement;
+      child.focus();
+      if(this.isFocusable(target, child) || this.focusLastElement(target, child)) {
+        return true;
+      }
+      return false;
+    }
+  }
+  
+  private moveFocusToFirst = (e: FocusEvent) => {
+    // this.firstFocus.focus();
+    const target = e.target as HTMLElement;
+    this.focusFirstElement(target, this.node);
+  }
+  
+  private moveFocusToLast = (e: FocusEvent) => {
+    // this.lastFocus.focus();
+    const target = e.target as HTMLElement;
+    this.focusLastElement(target, this.node);
+  }
+
+  private getElementByAttribute(name: string) {
+    const id = this.getAttribute(name);
+    if(!id) {
+      throw new Error(`${name} is not assigned`);
+    }
+    const element = document.getElementById(id);
+    if(!element) {
+      throw new Error(`${name} could not find. first-focus must be assigned id name.`);
+    }
+    return element;
   }
 }
