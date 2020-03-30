@@ -1,0 +1,42 @@
+* {
+  box-sizing: border-box;
+}
+
+#modal {
+  --backdrop-color: rgba(0, 0, 0, 0.3);
+  --backdrop-position: absolute;
+  --modal-margin: auto;
+  --modal-color: #eee;
+  --modal-padding: 5px;
+  --modal-width: 90%;
+  --modal-max-width: 600px;
+  --modal-border-radius: 10px;
+}
+
+.wrapper {
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.title {
+  padding: 10px 0;
+}
+
+.form {
+  display: inline-block;
+  text-align: right;
+  margin: 10px 0;
+}
+
+.form div {
+  margin: 10px 0;
+}
+
+.button-container {
+  margin: 10px 0;
+}
+
+.complete {
+  margin-right: 30px;
+}

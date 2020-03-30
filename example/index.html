@@ -4,42 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>web-components-aria-modal</title>
+  <link rel="stylesheet" href="stylesheet.css">
   <script src="index.umd.js" defer></script>
 </head>
 <body>
-  <style>
-    .aria-modal-backdrop {
-      display: block;
-      background-color: rgba(0, 0, 0, 0.6);
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-    }
-    .simple-modal {
-      width: 700px;
-      height: 500px;
-      background-color: #fff;
-      text-align: center;
-      padding: 10px 5px;
-      border-radius: 10px;
-      margin: 0 auto;
-      margin-top: 100px;
-    }
-  </style>
   <button onclick="openModal()">modal open</button>
-  <aria-modal 
+  <aria-modal
+    id="modal"
     first-focus="name"
     role="dialog"
     aria-labelledby="title"
     aria-describedby="description"
-    node="section"
+    node="wrapper"
+    display="flex"
   >
-    <div id="section" slot="modal">
-      <h1 id="title">Hello World</h1>
-      <p id="description">This modal is simple example</p>
-      <div>
+    <div slot="modal" id="wrapper" class="wrapper">
+      <h1 id="title" class="title">Hello World</h1>
+      <p id="description" class="description">This modal is simple example</p>
+      <div class="form">
         <div>
           <label>
             <span>name:</span>
@@ -58,19 +40,21 @@
             <input type="password" autocomplete="current-password">
           </label>
         </div>
-        <button type="submit" onclick="closeModal()">complete</button>
       </div>
-      <button onclick="closeModal()">cancel</button>
+      <div class="button-container">
+        <button type="button" class="complete" onclick="closeModal()">complete</button>
+        <button type="button" onclick="closeModal()">cancel</button>
+      </div>
     </div>
   </aria-modal>
   <script>
     function openModal() {
-      const modal = document.getElementsByTagName('aria-modal')[0];
+      const modal = document.getElementById('modal');
       modal.setAttribute('open', 'true');
     }
     
     function closeModal() {
-      const modal = document.getElementsByTagName('aria-modal')[0];
+      const modal = document.getElementById('modal');
       modal.setAttribute('open', 'false');
     }
   </script>

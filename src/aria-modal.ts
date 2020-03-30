@@ -22,7 +22,7 @@ export default class AriaModalElement extends HTMLElement {
     }
 
     const ariaModal = this.getAttribute('aria-modal');
-    if(!ariaModal || ariaModal === 'false') {
+    if(!ariaModal) {
       this.setAttribute('aria-modal', 'true');
     }
 
@@ -30,44 +30,9 @@ export default class AriaModalElement extends HTMLElement {
 
     this.open = this.getAttribute('open') === 'true';
 
-    const template = this.template`
-      <div id="aria-modal-backdrop" class="backdrop" style="display:${this.open ? this.display : 'none'};">
-        <div id="first-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
-        <div id="aria-modal" class="modal">
-          <slot name="modal"></slot>
-        </div>
-        <div id="last-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
-      </div>
-    `;
     const shadowRoot = this.attachShadow({ mode: 'open' });
 
-    if(this.open) {
-      template.focus();
-    }
-
-    const style = document.createElement('style');
-    style.textContent = `
-      .backdrop {
-        background-color: rgba(0, 0, 0, 0.6);
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-      }
-      .modal {
-        margin: 0 auto;
-        margin-top: 80px;
-        background-color: #fff;
-        padding: 20px 10px;
-        width: 90%;
-        max-width: 500px;
-        border-radius: 5px;
-      }
-    `;
-    shadowRoot.appendChild(style);
-
-    shadowRoot.appendChild(template.content.cloneNode(true));
+    shadowRoot.appendChild(this.createTemplate().content.cloneNode(true));
 
     document.addEventListener('keyup', this.handleOnKeyup);
     shadowRoot.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
@@ -81,7 +46,7 @@ export default class AriaModalElement extends HTMLElement {
   attributeChangedCallback(name: string, _: string, newValue: string) {
     if(name === 'open') {
       this.open = newValue === 'true';
-      this.setStyle();
+      this.toggleDisplay();
       this.setTabIndex();
       this.trapFocus();
     }
@@ -118,12 +83,48 @@ export default class AriaModalElement extends HTMLElement {
     }
   }
 
-  private setStyle() {
+  private toggleDisplay() {
     const backdrop = this.shadowRoot?.getElementById("aria-modal-backdrop");
     if(!backdrop) {
       throw new Error('Could not find aria-modal-backdrop id');
     }
     backdrop.style.display = this.open ? this.display : 'none';
+  }
+
+  private createTemplate() {
+    const template = document.createElement('template');
+    document.body.appendChild(template);
+
+    template.innerHTML = `
+      <style>
+        .backdrop {
+          background-color: var(--backdrop-color, rgba(0, 0, 0, 0.6));
+          position: var(--backdrop-position, absolute);
+          top: 0;
+          right: 0;
+          bottom: 0;
+          left: 0;
+        }
+        .modal {
+          margin: var(--modal-margin, auto);
+          background-color: var(--modal-color, #FFFFFF);
+          padding: var(--modal-padding, 20px 10px);
+          width: var(--modal-width, 80%);
+          height: var(--modal-height, auto);
+          max-width: var(--modal-max-width, 500px);
+          border-radius: var(--modal-border-radius, 5px);
+        }
+      </style>
+      <div id="aria-modal-backdrop" class="backdrop" style="display:${this.open ? this.display : 'none'};">
+        <div id="first-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
+        <div id="aria-modal" class="modal">
+          <slot name="modal"></slot>
+        </div>
+        <div id="last-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
+      </div>
+    `;
+  
+    return template;
   }
 
   private validateAriaAttrs(arr: string[]) {
@@ -152,27 +153,6 @@ export default class AriaModalElement extends HTMLElement {
       throw new Error(`${name} could not find. first-focus must be assigned id name.`);
     }
     return element;
-  }
-
-  private join(template: TemplateStringsArray, values: any[]) {
-    const length = template.length;
-    let result: string[] = [];
-    for(let i = 0; i < length; i++) {
-      let html = template[i];
-      if(values[i]) {
-        html += values[i];
-      }
-      result.push(html);
-    }
-    return result.join('');
-  }
-
-  private template(html: TemplateStringsArray, ...values: any[]) {
-    const template = document.createElement('template');
-    document.body.appendChild(template);
-
-    template.innerHTML = this.join(html, values);
-    return template;
   }
 
   private isFocusable(target: HTMLElement, element: HTMLElement) {
