@@ -30,16 +30,38 @@
   </style>
   <button onclick="openModal()">modal open</button>
   <aria-modal 
-    first-focus="button"
+    first-focus="name"
     role="dialog"
     aria-labelledby="title"
     aria-describedby="description"
+    node="section"
   >
-    <section slot="modal">
+    <div id="section" slot="modal">
       <h1 id="title">Hello World</h1>
       <p id="description">This modal is simple example</p>
-      <button id="button" onclick="closeModal()">close</button>
-    </section>
+      <div>
+        <div>
+          <label>
+            <span>name:</span>
+            <input id="name" type="text" autocomplete="username">
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>e-mail:</span>
+            <input type="email" autocomplete="email">
+          </label>
+        </div>
+        <div>
+          <label>
+            <span>password:</span>
+            <input type="password" autocomplete="current-password">
+          </label>
+        </div>
+        <button type="submit" onclick="closeModal()">complete</button>
+      </div>
+      <button onclick="closeModal()">cancel</button>
+    </div>
   </aria-modal>
   <script>
     function openModal() {

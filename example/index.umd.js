@@ -4,61 +4,48 @@
   (global = global || self, global.AriaModalElement = factory());
 }(this, (function () { 'use strict';
 
+  const roles = ['dialog', 'alertdialog'];
   class AriaModalElement extends HTMLElement {
       constructor() {
           var _a, _b;
           super();
-          this.focusFirstDescendant = (element) => {
-              for (var i = 0; i < element.childNodes.length; i++) {
-                  var child = element.childNodes[i];
-                  if (this.attemptFocus(child) ||
-                      this.focusFirstDescendant(child)) {
-                      return true;
-                  }
-              }
-              return false;
+          this.moveFocusToFirst = (e) => {
+              const target = e.target;
+              this.focusFirstElement(target, this.node);
           };
-          this.focusLastDescendant = (element) => {
-              for (var i = element.childNodes.length - 1; i >= 0; i--) {
-                  var child = element.childNodes[i];
-                  if (this.attemptFocus(child) ||
-                      this.focusLastDescendant(child)) {
-                      return true;
-                  }
-              }
-              return false;
+          this.moveFocusToLast = (e) => {
+              const target = e.target;
+              this.focusLastElement(target, this.node);
           };
-          this.moveFocusToFirst = () => {
-              var _a;
-              const modal = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('aria-modal');
-              if (modal) {
-                  modal.focus();
+          this.handleOnKeyup = (e) => {
+              const key = e.keyCode;
+              if (key === 27 && this.open) {
+                  this.setAttribute('open', 'false');
+                  e.stopPropagation();
               }
           };
-          this.moveFocusToLast = () => {
-              var _a;
-              const modal = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('aria-modal');
-              if (modal) {
-                  modal.focus();
-              }
-          };
-          this.lastFocus = null;
-          this.ignoreFocusChanges = false;
+          this.focusAfterClose = null;
+          this.firstFocus = this.getElementByAttribute('first-focus');
+          this.node = this.getElementByAttribute('node');
           this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
           this.validateAriaAttrs(['aria-describedby']);
-          const role = this.getAttribute('role');
-          if (!role || !['dialog', 'alertdialog'].includes(role)) {
-              throw new Error('role attribution is assigned invalid value');
+          const role = this.getAttribute('role') || 'dialog';
+          if (!roles.includes(role)) {
+              throw new Error(`role attribution is assigned invalid value. assignable value are ${roles.join(' or ')}.`);
+          }
+          const ariaModal = this.getAttribute('aria-modal');
+          if (!ariaModal || ariaModal === 'false') {
+              this.setAttribute('aria-modal', 'true');
           }
           this.display = this.getAttribute('display') || 'block';
-          this.open = this.getAttribute('open') === 'block';
+          this.open = this.getAttribute('open') === 'true';
           const template = this.template `
       <div id="aria-modal-backdrop" class="backdrop" style="display:${this.open ? this.display : 'none'};">
-        <div id="first-descendant" ${this.open ? 'tabindex=0' : ''}></div>
-        <div id="aria-modal" class="modal" role="${role}" aria-modal="true" tabindex="-1">
+        <div id="first-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
+        <div id="aria-modal" class="modal">
           <slot name="modal"></slot>
         </div>
-        <div id="last-descendant" ${this.open ? 'tabindex=0' : ''}></div>
+        <div id="last-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
       </div>
     `;
           const shadowRoot = this.attachShadow({ mode: 'open' });
@@ -82,11 +69,12 @@
         padding: 20px 10px;
         width: 90%;
         max-width: 500px;
-        border-radius: 10px;
+        border-radius: 5px;
       }
     `;
           shadowRoot.appendChild(style);
           shadowRoot.appendChild(template.content.cloneNode(true));
+          document.addEventListener('keyup', this.handleOnKeyup);
           (_a = shadowRoot.getElementById('first-descendant')) === null || _a === void 0 ? void 0 : _a.addEventListener('focus', this.moveFocusToLast, true);
           (_b = shadowRoot.getElementById('last-descendant')) === null || _b === void 0 ? void 0 : _b.addEventListener('focus', this.moveFocusToFirst, true);
       }
@@ -103,35 +91,22 @@
       }
       disconnectedCallback() {
           var _a, _b, _c, _d;
-          console.log('disconnected');
           (_b = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('first-descendant')) === null || _b === void 0 ? void 0 : _b.addEventListener('focus', this.moveFocusToLast, true);
           (_d = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.getElementById('last-descendant')) === null || _d === void 0 ? void 0 : _d.addEventListener('focus', this.moveFocusToFirst, true);
       }
       adoptedCallback() {
           var _a, _b, _c, _d;
-          console.log('adopted');
           (_b = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('first-descendant')) === null || _b === void 0 ? void 0 : _b.addEventListener('focus', this.moveFocusToLast, true);
           (_d = (_c = this.shadowRoot) === null || _c === void 0 ? void 0 : _c.getElementById('last-descendant')) === null || _d === void 0 ? void 0 : _d.addEventListener('focus', this.moveFocusToFirst, true);
       }
       trapFocus() {
-          var _a, _b;
-          if (this.ignoreFocusChanges) {
-              return;
-          }
-          const id = this.getAttribute('first-focus');
-          let firstFocus = null;
-          if (id) {
-              firstFocus = document.getElementById(this.getAttribute('first-focus') || '');
-          }
-          else {
-              firstFocus = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById('aria-modal');
-          }
+          var _a;
           if (this.open) {
-              this.lastFocus = document.activeElement;
-              firstFocus === null || firstFocus === void 0 ? void 0 : firstFocus.focus();
+              this.focusAfterClose = document.activeElement;
+              this.firstFocus.focus();
           }
           else {
-              (_b = this.lastFocus) === null || _b === void 0 ? void 0 : _b.focus();
+              (_a = this.focusAfterClose) === null || _a === void 0 ? void 0 : _a.focus();
           }
       }
       setTabIndex() {
@@ -167,6 +142,18 @@
           if (validArr.length >= 2) {
               throw new Error(`${arr.join(' or ')} can include just one on aria-modal.`);
           }
+          return validArr[0];
+      }
+      getElementByAttribute(name) {
+          const id = this.getAttribute(name);
+          if (!id) {
+              throw new Error(`${name} is not assigned`);
+          }
+          const element = document.getElementById(id);
+          if (!element) {
+              throw new Error(`${name} could not find. first-focus must be assigned id name.`);
+          }
+          return element;
       }
       join(template, values) {
           const length = template.length;
@@ -186,18 +173,30 @@
           template.innerHTML = this.join(html, values);
           return template;
       }
-      attemptFocus(element) {
-          if (!element.focus) {
+      isFocusable(target, element) {
+          return document.activeElement !== target && document.activeElement === element;
+      }
+      focusFirstElement(target, node) {
+          const children = node.children;
+          for (let i = 0; i < children.length; i++) {
+              const child = children[i];
+              child.focus();
+              if (this.isFocusable(target, child) || this.focusFirstElement(target, child)) {
+                  return true;
+              }
+          }
+          return false;
+      }
+      focusLastElement(target, node) {
+          const children = node.children;
+          for (let i = children.length - 1; i >= 0; i--) {
+              const child = children[i];
+              child.focus();
+              if (this.isFocusable(target, child) || this.focusLastElement(target, child)) {
+                  return true;
+              }
               return false;
           }
-          this.ignoreFocusChanges = true;
-          try {
-              element.focus();
-          }
-          catch (e) {
-          }
-          this.ignoreFocusChanges = false;
-          return document.activeElement === element;
       }
   }
 
