@@ -1,17 +1,28 @@
 const roles = ['dialog', 'alertdialog'];
 
+interface Props {
+  open: boolean;
+  node: HTMLElement;
+  firstFocus: HTMLElement;
+  animation: boolean;
+  duration: number;
+}
+
 export default class AriaModalElement extends HTMLElement {
-  public open: boolean;
-  public display: string;
+  public props: Props;
   private focusAfterClose: HTMLElement | null;
-  private firstFocus: HTMLElement;
-  private node: HTMLElement;
   constructor() {
     super();
-
+    
     this.focusAfterClose = null;
-    this.firstFocus = this.getElementByAttribute('first-focus');
-    this.node = this.getElementByAttribute('node');
+
+    this.props = {
+      open: this.getAttribute('open') === 'true',
+      node: this.getElementByAttribute('node'),
+      firstFocus: this.getElementByAttribute('first-focus'),
+      animation: this.getAttribute('animation') === 'true',
+      duration: Number(this.getAttribute('duration')) || 300,
+    }
 
     this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
     this.validateAriaAttrs(['aria-describedby']);
@@ -26,13 +37,9 @@ export default class AriaModalElement extends HTMLElement {
       this.setAttribute('aria-modal', 'true');
     }
 
-    this.display = this.getAttribute('display') || 'block';
-
-    this.open = this.getAttribute('open') === 'true';
-
     const shadowRoot = this.attachShadow({ mode: 'open' });
 
-    shadowRoot.appendChild(this.createTemplate().content.cloneNode(true));
+    shadowRoot.appendChild(this.template().content.cloneNode(true));
 
     document.addEventListener('keyup', this.handleOnKeyup);
     shadowRoot.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
@@ -45,8 +52,8 @@ export default class AriaModalElement extends HTMLElement {
 
   attributeChangedCallback(name: string, _: string, newValue: string) {
     if(name === 'open') {
-      this.open = newValue === 'true';
-      this.toggleDisplay();
+      this.props.open = newValue === 'true';
+      this.changeStyle();
       this.setTabIndex();
       this.trapFocus();
     }
@@ -63,16 +70,16 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private trapFocus() {
-    if(this.open) {
+    if(this.props.open) {
       this.focusAfterClose = document.activeElement as HTMLElement;
-      this.firstFocus.focus();
+      this.props.firstFocus.focus();
     } else {
       this.focusAfterClose?.focus();
     }
   }
 
   private setTabIndex() {
-    const modal = this.shadowRoot?.getElementById("aria-modal");
+    const modal = this.shadowRoot?.querySelector('slot');
     const prevSibling = modal?.previousElementSibling;
     const nextSibling = modal?.nextElementSibling;
     if(prevSibling) {
@@ -83,44 +90,84 @@ export default class AriaModalElement extends HTMLElement {
     }
   }
 
-  private toggleDisplay() {
+  private setHideStyle(backdrop: HTMLElement) {
+    if(this.props.animation) {
+      backdrop.classList.add('hide');
+      setTimeout(() => {
+        backdrop.classList.remove('active');
+        backdrop.classList.remove('hide');
+      }, this.props.duration);
+    } else {
+      backdrop.classList.remove('active');
+    }
+  }
+
+  private changeStyle() {
     const backdrop = this.shadowRoot?.getElementById("aria-modal-backdrop");
     if(!backdrop) {
       throw new Error('Could not find aria-modal-backdrop id');
     }
-    backdrop.style.display = this.open ? this.display : 'none';
+    if(this.props.open) {
+      backdrop.classList.add('active');
+    } else {
+      this.setHideStyle(backdrop);
+    }
   }
 
-  private createTemplate() {
+  private template() {
     const template = document.createElement('template');
     document.body.appendChild(template);
 
     template.innerHTML = `
       <style>
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes fade-out {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
         .backdrop {
+          display: none;
           background-color: var(--backdrop-color, rgba(0, 0, 0, 0.6));
           position: var(--backdrop-position, absolute);
           top: 0;
           right: 0;
           bottom: 0;
           left: 0;
+          ${this.props.animation ? 'opacity: 0;' : ''}
         }
-        .modal {
-          margin: var(--modal-margin, auto);
-          background-color: var(--modal-color, #FFFFFF);
-          padding: var(--modal-padding, 20px 10px);
-          width: var(--modal-width, 80%);
-          height: var(--modal-height, auto);
-          max-width: var(--modal-max-width, 500px);
-          border-radius: var(--modal-border-radius, 5px);
+        .backdrop.active {
+          display: var(--backdrop-display, block);
+          ${this.props.animation
+            ?
+            `animation: fade-in ${this.props.duration}ms var(--animation-function, ease-in) forwards;`
+            :
+            ''
+          }
+        }
+        .backdrop.hide {
+          ${this.props.animation
+            ?
+            `animation: fade-out ${this.props.duration}ms var(--animation-function, ease-in) forwards;`
+            :
+            ''
+          }
         }
       </style>
-      <div id="aria-modal-backdrop" class="backdrop" style="display:${this.open ? this.display : 'none'};">
-        <div id="first-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
-        <div id="aria-modal" class="modal">
+      <div id="aria-modal-backdrop" class="backdrop">
+        <div id="first-descendant"></div>
           <slot name="modal"></slot>
-        </div>
-        <div id="last-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
+        <div id="last-descendant"></div>
       </div>
     `;
   
@@ -185,17 +232,17 @@ export default class AriaModalElement extends HTMLElement {
   
   private moveFocusToFirst = (e: FocusEvent) => {
     const target = e.target as HTMLElement;
-    this.focusFirstElement(target, this.node);
+    this.focusFirstElement(target, this.props.node);
   }
   
   private moveFocusToLast = (e: FocusEvent) => {
     const target = e.target as HTMLElement;
-    this.focusLastElement(target, this.node);
+    this.focusLastElement(target, this.props.node);
   }
 
   private handleOnKeyup = (e: KeyboardEvent) => {
     const key = e.keyCode;
-    if(key === 27 && this.open) {
+    if(key === 27 && this.props.open) {
       this.setAttribute('open', 'false');
       e.stopPropagation();
     }
