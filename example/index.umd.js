@@ -11,22 +11,27 @@
           super();
           this.moveFocusToFirst = (e) => {
               const target = e.target;
-              this.focusFirstElement(target, this.node);
+              this.focusFirstElement(target, this.props.node);
           };
           this.moveFocusToLast = (e) => {
               const target = e.target;
-              this.focusLastElement(target, this.node);
+              this.focusLastElement(target, this.props.node);
           };
           this.handleOnKeyup = (e) => {
               const key = e.keyCode;
-              if (key === 27 && this.open) {
+              if (key === 27 && this.props.open) {
                   this.setAttribute('open', 'false');
                   e.stopPropagation();
               }
           };
           this.focusAfterClose = null;
-          this.firstFocus = this.getElementByAttribute('first-focus');
-          this.node = this.getElementByAttribute('node');
+          this.props = {
+              open: this.getAttribute('open') === 'true',
+              node: this.getElementByAttribute('node'),
+              firstFocus: this.getElementByAttribute('first-focus'),
+              animation: this.getAttribute('animation') === 'true',
+              duration: Number(this.getAttribute('duration')) || 300,
+          };
           this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
           this.validateAriaAttrs(['aria-describedby']);
           const role = this.getAttribute('role') || 'dialog';
@@ -37,10 +42,8 @@
           if (!ariaModal) {
               this.setAttribute('aria-modal', 'true');
           }
-          this.display = this.getAttribute('display') || 'block';
-          this.open = this.getAttribute('open') === 'true';
           const shadowRoot = this.attachShadow({ mode: 'open' });
-          shadowRoot.appendChild(this.createTemplate().content.cloneNode(true));
+          shadowRoot.appendChild(this.template().content.cloneNode(true));
           document.addEventListener('keyup', this.handleOnKeyup);
           (_a = shadowRoot.getElementById('first-descendant')) === null || _a === void 0 ? void 0 : _a.addEventListener('focus', this.moveFocusToLast, true);
           (_b = shadowRoot.getElementById('last-descendant')) === null || _b === void 0 ? void 0 : _b.addEventListener('focus', this.moveFocusToFirst, true);
@@ -50,8 +53,8 @@
       }
       attributeChangedCallback(name, _, newValue) {
           if (name === 'open') {
-              this.open = newValue === 'true';
-              this.toggleDisplay();
+              this.props.open = newValue === 'true';
+              this.changeStyle();
               this.setTabIndex();
               this.trapFocus();
           }
@@ -68,9 +71,9 @@
       }
       trapFocus() {
           var _a;
-          if (this.open) {
+          if (this.props.open) {
               this.focusAfterClose = document.activeElement;
-              this.firstFocus.focus();
+              this.props.firstFocus.focus();
           }
           else {
               (_a = this.focusAfterClose) === null || _a === void 0 ? void 0 : _a.focus();
@@ -78,7 +81,7 @@
       }
       setTabIndex() {
           var _a;
-          const modal = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById("aria-modal");
+          const modal = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.querySelector('slot');
           const prevSibling = modal === null || modal === void 0 ? void 0 : modal.previousElementSibling;
           const nextSibling = modal === null || modal === void 0 ? void 0 : modal.nextElementSibling;
           if (prevSibling) {
@@ -88,26 +91,76 @@
               nextSibling.setAttribute('tabindex', '0');
           }
       }
-      toggleDisplay() {
+      setHideStyle(backdrop) {
+          if (this.props.animation) {
+              backdrop.classList.add('hide');
+              setTimeout(() => {
+                  backdrop.classList.remove('active');
+                  backdrop.classList.remove('hide');
+              }, this.props.duration);
+          }
+          else {
+              backdrop.classList.remove('active');
+          }
+      }
+      changeStyle() {
           var _a;
           const backdrop = (_a = this.shadowRoot) === null || _a === void 0 ? void 0 : _a.getElementById("aria-modal-backdrop");
           if (!backdrop) {
               throw new Error('Could not find aria-modal-backdrop id');
           }
-          backdrop.style.display = this.open ? this.display : 'none';
+          if (this.props.open) {
+              backdrop.classList.add('active');
+          }
+          else {
+              this.setHideStyle(backdrop);
+          }
       }
-      createTemplate() {
+      template() {
           const template = document.createElement('template');
           document.body.appendChild(template);
           template.innerHTML = `
       <style>
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        @keyframes fade-out {
+          from {
+            opacity: 1;
+          }
+          to {
+            opacity: 0;
+          }
+        }
         .backdrop {
+          display: none;
           background-color: var(--backdrop-color, rgba(0, 0, 0, 0.6));
           position: var(--backdrop-position, absolute);
           top: 0;
           right: 0;
           bottom: 0;
           left: 0;
+          ${this.props.animation ? 'opacity: 0;' : ''}
+        }
+        .backdrop.active {
+          display: var(--backdrop-display, block);
+          ${this.props.animation
+            ?
+                `animation: fade-in ${this.props.duration}ms var(--animation-function, ease-in) forwards;`
+            :
+                ''}
+        }
+        .backdrop.hide {
+          ${this.props.animation
+            ?
+                `animation: fade-out ${this.props.duration}ms var(--animation-function, ease-in) forwards;`
+            :
+                ''}
         }
         .modal {
           margin: var(--modal-margin, auto);
@@ -119,12 +172,10 @@
           border-radius: var(--modal-border-radius, 5px);
         }
       </style>
-      <div id="aria-modal-backdrop" class="backdrop" style="display:${this.open ? this.display : 'none'};">
-        <div id="first-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
-        <div id="aria-modal" class="modal">
+      <div id="aria-modal-backdrop" class="backdrop">
+        <div id="first-descendant"></div>
           <slot name="modal"></slot>
-        </div>
-        <div id="last-descendant" ${this.open ? 'tabindex="0"' : ''}></div>
+        <div id="last-descendant"></div>
       </div>
     `;
           return template;
