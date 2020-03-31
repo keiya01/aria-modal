@@ -162,15 +162,6 @@
             :
                 ''}
         }
-        .modal {
-          margin: var(--modal-margin, auto);
-          background-color: var(--modal-color, #FFFFFF);
-          padding: var(--modal-padding, 20px 10px);
-          width: var(--modal-width, 80%);
-          height: var(--modal-height, auto);
-          max-width: var(--modal-max-width, 500px);
-          border-radius: var(--modal-border-radius, 5px);
-        }
       </style>
       <div id="aria-modal-backdrop" class="backdrop">
         <div id="first-descendant"></div>
