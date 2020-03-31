@@ -45,14 +45,9 @@ Using css variables, you can apply your style to `<aria-modal>`.
 ```css
 
 aria-modal {
-  --backdrop-color: rgba(0, 0, 0, 0.3);
-  --backdrop-position: absolute;
-  --modal-margin: auto;
-  --modal-color: #eee;
-  --modal-padding: 5px;
-  --modal-width: 90%;
-  --modal-max-width: 600px;
-  --modal-border-radius: 10px;
+  --backdrop-display: block; /* or flex, inline-block, etc... */
+  --backdrop-color: rgba(0, 0, 0, 0.3); /* background-color for backdrop */
+  --backdrop-position: absolute; /* or fixed */
 }
 
 ```
@@ -64,7 +59,8 @@ aria-modal {
 | `open` | `false` | `false` | It is used to show modal. You can set true if you want to open modal. |
 | `first-focus` | `true` | *none* | It is used to focus to first element when modal is opened. You should assign id name. | 
 | `node` | `true` | *none* | It is used to move focus inside modal. You should set modal id name. |
-| `display` | `false` | `block` | It is used to set display style for backdrop. You could can `display` value.
+| `animation` | `false`| `false` | Fade animation will run if animation flag is true. |
+| `duration` | `false` | `300` | animation duration time |
 | `aria-label` or `aria-labelledby` | `true` | *none* | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-labelledby_attribute |
 | `aria-describedby` | `true` | *none* | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-describedby_attribute |
 | `role` | `true` | *none* | Assignable value are `dialog` or `alertdialog`. See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles |
