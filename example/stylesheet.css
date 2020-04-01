@@ -3,11 +3,14 @@
 }
 
 #modal {
+	--backdrop-display: flex;
 	--backdrop-color: rgba(0, 0, 0, 0.3);
 	--backdrop-position: absolute;
+	--animation-function: ease-in;
 }
 
 .wrapper {
+	display: none;
 	text-align: center;
 	margin: auto;
 	background-color: #eee;
@@ -15,6 +18,10 @@
 	width: 90%;
 	max-width: 600px;
 	border-radius: 10px;
+}
+
+.wrapper.active {
+	display: block;
 }
 
 .title {
