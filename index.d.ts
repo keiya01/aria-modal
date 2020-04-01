@@ -1,6 +1,7 @@
+import { AriaModalProps } from "./src/index";
+
 export default class AriaModalElement extends HTMLElement {
-  open: boolean;
-  display: string;
+  props: AriaModalProps;
 }
 
 declare global {

@@ -1,6 +1,6 @@
 const roles = ['dialog', 'alertdialog'];
 
-interface Props {
+export interface AriaModalProps {
   open: boolean;
   node: HTMLElement;
   firstFocus: HTMLElement;
@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default class AriaModalElement extends HTMLElement {
-  public props: Props;
+  public props: AriaModalProps;
   private focusAfterClose: HTMLElement | null;
   constructor() {
     super();
