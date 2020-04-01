@@ -4,6 +4,7 @@ interface Props {
   open: boolean;
   node: HTMLElement;
   firstFocus: HTMLElement;
+  active: string;
   animation: boolean;
   duration: number;
 }
@@ -20,6 +21,7 @@ export default class AriaModalElement extends HTMLElement {
       open: this.getAttribute('open') === 'true',
       node: this.getElementByAttribute('node'),
       firstFocus: this.getElementByAttribute('first-focus'),
+      active: this.getAttribute('active') || '',
       animation: this.getAttribute('animation') === 'true',
       duration: Number(this.getAttribute('duration')) || 300,
     }
@@ -91,14 +93,17 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private setHideStyle(backdrop: HTMLElement) {
-    if(this.props.animation) {
+    const { node, animation, duration, active } = this.props;
+    if(animation) {
       backdrop.classList.add('hide');
       setTimeout(() => {
         backdrop.classList.remove('active');
         backdrop.classList.remove('hide');
-      }, this.props.duration);
+        node.classList.remove(active);
+      }, duration);
     } else {
       backdrop.classList.remove('active');
+      node.classList.remove(active);
     }
   }
 
@@ -107,8 +112,10 @@ export default class AriaModalElement extends HTMLElement {
     if(!backdrop) {
       throw new Error('Could not find aria-modal-backdrop id');
     }
+
     if(this.props.open) {
       backdrop.classList.add('active');
+      this.props.node.classList.add(this.props.active);
     } else {
       this.setHideStyle(backdrop);
     }
@@ -138,8 +145,8 @@ export default class AriaModalElement extends HTMLElement {
         }
         .backdrop {
           display: none;
-          background-color: var(--backdrop-color, rgba(0, 0, 0, 0.6));
-          position: var(--backdrop-position, absolute);
+          background-color: var(--backdrop-color);
+          position: var(--backdrop-position);
           top: 0;
           right: 0;
           bottom: 0;
@@ -147,10 +154,10 @@ export default class AriaModalElement extends HTMLElement {
           ${this.props.animation ? 'opacity: 0;' : ''}
         }
         .backdrop.active {
-          display: var(--backdrop-display, block);
+          display: var(--backdrop-display);
           ${this.props.animation
             ?
-            `animation: fade-in ${this.props.duration}ms var(--animation-function, ease-in) forwards;`
+            `animation: fade-in ${this.props.duration}ms var(--animation-function) forwards;`
             :
             ''
           }
@@ -158,7 +165,7 @@ export default class AriaModalElement extends HTMLElement {
         .backdrop.hide {
           ${this.props.animation
             ?
-            `animation: fade-out ${this.props.duration}ms var(--animation-function, ease-in) forwards;`
+            `animation: fade-out ${this.props.duration}ms var(--animation-function) forwards;`
             :
             ''
           }
