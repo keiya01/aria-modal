@@ -4,18 +4,18 @@ Accessible modal with Web Components
 
 # Install(ESM)
 
-- `yarn add web-components-aria-modal` or `npm i web-components-aria-modal`
+- `yarn add aria-modal` or `npm i aria-modal`
 
 # Install(UMD)
 
 - Please download the following code.
-- https://unpkg.com/web-components-aria-modal@latest/dist/index.umd.js
+- https://unpkg.com/aria-modal@latest/dist/index.umd.js
 
 # Usage
 
 ```js
 
-import 'web-components-aria-modal';
+import 'aria-modal';
 
 /**
  * do something
