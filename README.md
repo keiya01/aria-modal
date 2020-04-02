@@ -75,4 +75,4 @@ This problem is occurred by rendering process for Web Components. Your modal is 
 
 # Example
 
-https://github.com/github/clipboard-copy-element/tree/master/examples
+https://github.com/keiya01/aria-modal/tree/master/example
