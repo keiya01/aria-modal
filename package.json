@@ -1,6 +1,6 @@
 {
   "name": "aria-modal",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Accessible modal with Web Components",
   "main": "dist/index.umd.js",
   "module": "dist/index.esm.js",
