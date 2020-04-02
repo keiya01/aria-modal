@@ -7,7 +7,7 @@
   "types": "index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/keiya01/web-components-aria-modal.git"
+    "url": "git+https://github.com/keiya01/aria-modal.git"
   },
   "keywords": [
     "web-components",
@@ -16,9 +16,9 @@
   ],
   "author": "Keiya Sasaki",
   "bugs": {
-    "url": "https://github.com/keiya01/web-components-aria-modal/issues"
+    "url": "https://github.com/keiya01/aria-modal/issues"
   },
-  "homepage": "https://github.com/keiya01/web-components-aria-modal#readme",
+  "homepage": "https://github.com/keiya01/aria-modal#readme",
   "license": "MIT",
   "scripts": {
     "start": "serve ./example",
