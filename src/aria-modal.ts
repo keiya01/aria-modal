@@ -151,6 +151,7 @@ export default class AriaModalElement extends HTMLElement {
           right: 0;
           bottom: 0;
           left: 0;
+          z-index: var(--backdrop-z-index);
           ${this.props.animation ? 'opacity: 0;' : ''}
         }
         .backdrop.active {

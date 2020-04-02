@@ -48,6 +48,7 @@ aria-modal {
   --backdrop-display: block; /* or flex, inline-block, etc... */
   --backdrop-color: rgba(0, 0, 0, 0.3); /* background-color for backdrop */
   --backdrop-position: absolute; /* or fixed */
+  --backdrop-z-index: 0;
 }
 
 ```
