@@ -1,4 +1,4 @@
-# web-components-aria-modal
+# aria-modal
 
 Accessible modal with Web Components
 
