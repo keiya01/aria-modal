@@ -9,7 +9,7 @@ Accessible modal with Web Components
 Using npm:
 
 ```bash
-$ npm install social-button
+$ npm install aria-modal
 ```
 
 ## Usage
