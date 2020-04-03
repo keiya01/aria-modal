@@ -4,16 +4,15 @@
 
 Accessible modal with Web Components
 
-# Install(ESM)
+## Install
 
-- `yarn add aria-modal` or `npm i aria-modal`
+Using npm:
 
-# Install(UMD)
+```bash
+$ npm install social-button
+```
 
-- Please download the following code.
-- https://unpkg.com/aria-modal@latest/dist/index.umd.js
-
-# Usage
+## Usage
 
 ```js
 
@@ -25,7 +24,7 @@ import 'aria-modal';
 
 ```
 
-# Append Your Modal
+### Append Your Modal
 
 You can append your modal inside aria-modal with `slot`. If you use `slot`, you can use accessible feature for modal.  
 Please see following example.
@@ -40,7 +39,7 @@ Please see following example.
 
 ```
 
-# Style
+### Style
 
 Using css variables, you can apply your style to `<aria-modal>`.
 
@@ -55,7 +54,7 @@ aria-modal {
 
 ```
 
-# Props
+### Props
 
 | name | required | default | description |
 | :--: | :------: | :-----: | :--------- |
@@ -70,11 +69,15 @@ aria-modal {
 | `role` | `true` | *none* | Assignable value are `dialog` or `alertdialog`. See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles |
 | `aria-modal` | `false` | `true` | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/dialog_role
 
-## Warning
+#### Warning
 
 If the active class is not set to `aria-modal`, it may flicker when reloaded on browser. When you set active class, you should set your modal to `display: none;` and you should set your active class to `display: block; /* or flex, inline-block, etc... */`.  
 This problem is occurred by rendering process for Web Components. Your modal is assigned to `slot` element in `aria-modal`, and `slot` is rendered after JavaScript file(and Web Components) have loaded. That is, this problem is occurred by your modal is rendered without your modal is assigned to slot.
 
-# Example
+### Example
 
 https://github.com/keiya01/aria-modal/tree/master/example
+
+## License
+
+[MIT License](https://github.com/keiya01/aria-modal/blob/master/LICENSE)
