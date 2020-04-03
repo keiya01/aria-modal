@@ -1,4 +1,4 @@
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/keiya01/aria-modal)
+[![npm](https://img.shields.io/npm/v/aria-modal.svg)](https://npmjs.org/package/aria-modal) [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/aria-modal)
 
 # aria-modal
 
