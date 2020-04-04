@@ -205,7 +205,7 @@ export default class AriaModalElement extends HTMLElement {
     }
     const element = document.getElementById(id);
     if(!element) {
-      throw new Error(`${name} could not find. first-focus must be assigned id name.`);
+      throw new Error(`${name} could not find. ${name} must be assigned id name.`);
     }
     return element;
   }
