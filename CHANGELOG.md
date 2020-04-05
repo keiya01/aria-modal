@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.0.4
+
+- Fixed bugs
+
 ## v2.0.1, v2.0.2, v2.0.3
 
 - Fixed README.md
