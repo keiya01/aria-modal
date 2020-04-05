@@ -251,10 +251,10 @@ export default class AriaModalElement extends HTMLElement {
 
   private setShadowNode() {
     if(!this.props.node.shadowRoot) {
-      throw new Error('node property is not custom element.')
+      throw new Error('node property is not custom element.');
     }
     const children = this.props.node.shadowRoot.children;
-    if(children.length !== 1) {
+    if(children.length > 2 || children.length === 0) {
       throw new Error('Element that is specified by node property can contain just 1 child element.');
     }
     this.shadowNode = children[0] as HTMLElement;
