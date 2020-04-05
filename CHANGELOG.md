@@ -1,6 +1,10 @@
 # Changelog
 
-## v1.3.0
+## v2.0.1, v2.0.2, v2.0.3
+
+- Fixed README.md
+
+## v2.0.0
 
 - Supported custom element.
 - Added `shadow` property that is used to check your node element is custom element.
