@@ -54,6 +54,7 @@ export default class AriaModalElement extends HTMLElement {
     shadowRoot.appendChild(this.template().content.cloneNode(true));
 
     document.addEventListener('keyup', this.handleOnKeyup);
+    shadowRoot.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
     shadowRoot.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
     shadowRoot.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
   }
@@ -72,6 +73,7 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this.shadowRoot?.getElementById('aria-modal-backdrop')?.removeEventListener('click', this.handleOnClickBackdrop, true);
     this.shadowRoot?.getElementById('first-descendant')?.removeEventListener('focus', this.moveFocusToLast, true);
     this.shadowRoot?.getElementById('last-descendant')?.removeEventListener('focus', this.moveFocusToFirst, true);
     window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
@@ -322,6 +324,14 @@ export default class AriaModalElement extends HTMLElement {
       node = this.shadowNode;
     }
     this.focusLastElement(target, node);
+  }
+
+  // TODO: Fix any type
+  private handleOnClickBackdrop = (e: any) => {
+    const id = `#${this.props.node.getAttribute('id')}`;
+    if(!e.target.closest(id)) {
+      this.setAttribute('open', 'false');
+    }
   }
 
   private handleOnKeyup = (e: KeyboardEvent) => {
