@@ -59,7 +59,7 @@ aria-modal {
 | name | required | default | value | description |
 | :--: | :------: | :-----: | :---: | :---------- |
 | `open` | `false` | `false` | `true` or `false` | It is used to show modal. You can set `true` if you want to open modal. |
-| `first-focus` | `true` | *none* | `class-name` or `function firstFocus(): HTMLElement` | It is used to focus to first element when modal is opened. You should assign `id` name. You must implement `firstFocus` function to your `node` element, if you `first-focus` element is a custom element or inside a custom element.(See [firstFocus function](#firstFocus-function)) | 
+| `first-focus` | `true` | *none* | `class-name` or `function firstFocus(): HTMLElement` | It is used to focus to first element when modal is opened. You should assign `id` name. <br> You must implement `firstFocus` function to your `node` element, if you `first-focus` element is a custom element or inside a custom element.(See [firstFocus function](#firstFocus-function)) | 
 | `node` | `true` | *none* | `class-name` | It is used to move focus inside modal. You should set modal id name. |
 | `shadow` | `false` | `false` | `true` or `false` | You must specify this property to `true`, if you use custom element as `node` element. |
 | `animation` | `false`| `false` | `true` or `false` | Fade animation will run if `animation` flag is `true`. |
