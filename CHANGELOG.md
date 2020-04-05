@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.0
+
+- Supported custom element.
+- Added `shadow` property that is used to check your node element is custom element.
+- Fixed `firstFocus` property.
+  - `firstFocus` property is supported custom element.
+  - You can use custom property, if you implement `firstFocus` function to your node element instead of `firstFocus` property.
+- Changed `aria-describedby` to optional.
+
 ## v1.2.10
 
 - Fixed README.md

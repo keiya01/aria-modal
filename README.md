@@ -59,13 +59,14 @@ aria-modal {
 | name | required | default | description |
 | :--: | :------: | :-----: | :--------- |
 | `open` | `false` | `false` | It is used to show modal. You can set true if you want to open modal. |
-| `first-focus` | `true` | *none* | It is used to focus to first element when modal is opened. You should assign id name. | 
+| `first-focus` | `true` | *none* | It is used to focus to first element when modal is opened. You should assign `id` name. You must implement `firstFocus` function to your `node` element, if you `first-focus` element is a custom element or inside a custom element. | 
 | `node` | `true` | *none* | It is used to move focus inside modal. You should set modal id name. |
+| `shadow` | `false` | `false` | You must specify this property to `true`, if you use custom element as `node` element. |
 | `animation` | `false`| `false` | Fade animation will run if `animation` flag is `true`. |
 | `duration` | `false` | `300` | animation duration time |
 | `active` | `false` | *none* | active is class that is added when `open` props is changed `true`. |
 | `aria-label` or `aria-labelledby` | `true` | *none* | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-labelledby_attribute |
-| `aria-describedby` | `true` | *none* | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-describedby_attribute |
+| `aria-describedby` | `false` | *none* | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-describedby_attribute |
 | `role` | `true` | *none* | Assignable value are `dialog` or `alertdialog`. See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles |
 | `aria-modal` | `false` | `true` | See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/dialog_role
 
