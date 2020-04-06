@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.1.1
+
+- Fixed bugs
+
 ## v2.1.0
 
 - Refactor source code
