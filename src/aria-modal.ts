@@ -290,11 +290,11 @@ export default class AriaModalElement extends HTMLElement {
     if(!this.node.shadowRoot) {
       throw new Error('node property is not custom element.');
     }
-    const children = this.node.shadowRoot.children;
-    if(children.length > 2 || children.length === 0) {
+    const child = this.node.shadowRoot.children.item(0);
+    if(!child) {
       throw new Error('Element that is specified by node property can contain just 1 child element.');
     }
-    this.shadowNode = children[0] as HTMLElement;
+    this.shadowNode = child as HTMLElement;
   }
 
   private setFirstFocus() {
