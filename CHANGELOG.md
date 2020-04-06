@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.1
+
+- Fixed bugs that the modal don't open when initial `open` property is true
+
 ## v2.3.0
 
 - Fixed types on index.d.ts
