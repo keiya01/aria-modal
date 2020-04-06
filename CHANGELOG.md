@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.3.0
+
+- Fixed types on index.d.ts
+
 ## v2.2.5
 
 - Supported scrolling on the modal
