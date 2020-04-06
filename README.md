@@ -19,6 +19,10 @@ aria-modal that is a fully accessible is built according to [WAI-ARIA Authoring 
 - If clicking the backdrop, the modal is closed.
 - If animation property is true, the modal can use the fade-in(out) animation.
 
+## DEMO
+
+https://keiya01.github.io/aria-modal-doc/top/
+
 ## Install
 
 Using npm:
