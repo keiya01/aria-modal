@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.2.1
+## v2.2.1, v2.2.2
 
 - Fixed README.md
 
