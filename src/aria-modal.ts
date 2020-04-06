@@ -93,28 +93,23 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
-    if(name === 'open') {
+    if(name === 'open' && this.firstFocus) {
       this.handleOnOpen();
     }
   }
 
   connectedCallback() {
-    if(this.shadow) {
-      window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
-    } else {
-      this.firstFocus = this.getElementByAttribute('first-focus');
-    }
-    
     this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
-
+    
     if(!roles.includes(this.role)) {
       throw new Error(`role attribution is assigned invalid value. assignable value are ${roles.join(' or ')}.`);
     }
-
+    
     document.addEventListener('keyup', this.handleOnKeyup);
     this.shadowRoot!.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
     this.shadowRoot!.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
     this.shadowRoot!.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
+    window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
   }
 
   disconnectedCallback() {
@@ -306,8 +301,16 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private handleOnDOMContentLoaded = () => {
-    this.setShadowNode();
-    this.setFirstFocus();
+    if(this.shadow) {
+      this.setShadowNode();
+      this.setFirstFocus();
+    } else {
+      this.firstFocus = this.getElementByAttribute('first-focus');
+    }
+
+    if(this.open) {
+      this.handleOnOpen();
+    }
   }
 
   private isFocusable(target: HTMLElement, element: HTMLElement) {
