@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1.0
+
+- Refactor source code
+- Deleted `AriaModalProps`
+- Fixed bugs
+
 ## v2.0.4
 
 - Fixed bugs
