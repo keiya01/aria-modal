@@ -1,8 +1,4 @@
-import { AriaModalProps } from "./src/index";
-
-export default class AriaModalElement extends HTMLElement {
-  props: AriaModalProps;
-}
+export default class AriaModalElement extends HTMLElement {}
 
 declare global {
   interface Window {

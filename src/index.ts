@@ -1,6 +1,5 @@
 import AriaModalElement from './aria-modal';
 
-export { AriaModalProps } from './aria-modal';
 export default AriaModalElement;
 
 if(!window.customElements.get('aria-modal')) {
