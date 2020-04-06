@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.4
+
+- Fixed bugs
+
 ## v2.2.3
 
 - Publish DEMO page
