@@ -2,92 +2,13 @@ const roles = ['dialog', 'alertdialog'];
 
 type ModalNode = HTMLElement & { firstFocus?: () => HTMLElement };
 
-export interface AriaModalProps {
-  open: boolean;
-  node: ModalNode;
-  shadow: boolean;
-  firstFocus?: HTMLElement;
-  active: string;
-  animation: boolean;
-  duration: number;
-}
-
 export default class AriaModalElement extends HTMLElement {
-  public props: AriaModalProps;
+  private firstFocus?: HTMLElement;
   private focusAfterClose: HTMLElement | null;
   private shadowNode?: HTMLElement;
 
-  constructor() {
-    super();
-    
-    this.focusAfterClose = null;
-
-    this.props = {
-      open: this.getAttribute('open') === 'true',
-      node: this.getElementByAttribute('node') as ModalNode,
-      shadow: this.getAttribute('shadow') === 'true',
-      active: this.getAttribute('active') || '',
-      animation: this.getAttribute('animation') === 'true',
-      duration: Number(this.getAttribute('duration')) || 300,
-    }
-
-    if(this.props.shadow) {
-      window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
-    } else {
-      this.props.firstFocus = this.getElementByAttribute('first-focus');
-    }
-    
-    this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
-
-    const role = this.getAttribute('role') || 'dialog';
-    if(!roles.includes(role)) {
-      throw new Error(`role attribution is assigned invalid value. assignable value are ${roles.join(' or ')}.`);
-    }
-
-    const ariaModal = this.getAttribute('aria-modal');
-    if(!ariaModal) {
-      this.setAttribute('aria-modal', 'true');
-    }
-
-    const shadowRoot = this.attachShadow({ mode: 'open' });
-
-    shadowRoot.appendChild(this.template().content.cloneNode(true));
-
-    document.addEventListener('keyup', this.handleOnKeyup);
-    shadowRoot.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
-    shadowRoot.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
-    shadowRoot.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
-  }
-
-  static get observedAttributes() {
-    return ['open'];
-  }
-
-  attributeChangedCallback(name: string, _: string, newValue: string) {
-    if(name === 'open') {
-      this.props.open = newValue === 'true';
-      this.changeStyle();
-      this.setTabIndex();
-      this.trapFocus();
-    }
-  }
-
-  disconnectedCallback() {
-    this.shadowRoot?.getElementById('aria-modal-backdrop')?.removeEventListener('click', this.handleOnClickBackdrop, true);
-    this.shadowRoot?.getElementById('first-descendant')?.removeEventListener('focus', this.moveFocusToLast, true);
-    this.shadowRoot?.getElementById('last-descendant')?.removeEventListener('focus', this.moveFocusToFirst, true);
-    window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
-  }
-  
-  adoptedCallback() {
-    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
-    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
-  }
-
-  private template() {
-    const template = document.createElement('template');
-
-    template.innerHTML = `
+  get styles() {
+    return `
       <style>
         @keyframes fade-in {
           from {
@@ -114,26 +35,34 @@ export default class AriaModalElement extends HTMLElement {
           bottom: 0;
           left: 0;
           z-index: var(--backdrop-z-index);
-          ${this.props.animation ? 'opacity: 0;' : ''}
+          ${this.animation ? 'opacity: 0;' : ''}
         }
         .backdrop.active {
           display: var(--backdrop-display);
-          ${this.props.animation
+          ${this.animation
             ?
-            `animation: fade-in ${this.props.duration}ms var(--animation-function) forwards;`
+            `animation: fade-in ${this.duration}ms var(--animation-function) forwards;`
             :
             ''
           }
         }
         .backdrop.hide {
-          ${this.props.animation
+          ${this.animation
             ?
-            `animation: fade-out ${this.props.duration}ms var(--animation-function) forwards;`
+            `animation: fade-out ${this.duration}ms var(--animation-function) forwards;`
             :
             ''
           }
         }
       </style>
+    `;
+  }
+
+  get template() {
+    const template = document.createElement('template');
+
+    template.innerHTML = `
+      ${this.styles}
       <div id="aria-modal-backdrop" class="backdrop">
         <div id="first-descendant"></div>
           <slot name="modal"></slot>
@@ -144,83 +73,186 @@ export default class AriaModalElement extends HTMLElement {
     return template;
   }
 
-  private getActiveElement(target: HTMLElement) {
-    if(target.shadowRoot) {
-      this.getActiveElement(target.shadowRoot.activeElement as HTMLElement);
-    } else {
-      this.focusAfterClose = target;
+  constructor() {
+    super();
+    
+    this.focusAfterClose = null;
+
+    if(!this.ariaModal) {
+      this.ariaModal = true;
+    }
+
+    const shadowRoot = this.attachShadow({ mode: 'open' });
+
+    shadowRoot.appendChild(this.template.content.cloneNode(true));
+  }
+
+  static get observedAttributes() {
+    return ['open'];
+  }
+
+  attributeChangedCallback(name: string) {
+    if(name === 'open') {
+      this.handleOnOpen();
     }
   }
 
-  private trapFocus() {
-    if(this.props.open) {
-      this.focusAfterClose = document.activeElement as HTMLElement;
-      if(this.focusAfterClose.shadowRoot) {
-        this.getActiveElement(this.focusAfterClose.shadowRoot!.activeElement as HTMLElement);
-      }
-      if(!this.props.firstFocus) {
-        // TODO: Fix error message to describe more detail
-        throw new Error('firstFocus could not find.');
-      }
-      this.props.firstFocus.focus();
+  connectedCallback() {
+    if(this.shadow) {
+      window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
     } else {
-      this.focusAfterClose?.focus();
+      this.firstFocus = this.getElementByAttribute('first-focus');
     }
+    
+    this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
+
+    if(!roles.includes(this.role)) {
+      throw new Error(`role attribution is assigned invalid value. assignable value are ${roles.join(' or ')}.`);
+    }
+
+    document.addEventListener('keyup', this.handleOnKeyup);
+    this.shadowRoot!.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
+    this.shadowRoot!.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
+    this.shadowRoot!.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
+  }
+
+  disconnectedCallback() {
+    this.shadowRoot?.getElementById('aria-modal-backdrop')?.removeEventListener('click', this.handleOnClickBackdrop, true);
+    this.shadowRoot?.getElementById('first-descendant')?.removeEventListener('focus', this.moveFocusToLast, true);
+    this.shadowRoot?.getElementById('last-descendant')?.removeEventListener('focus', this.moveFocusToFirst, true);
+    window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
+  }
+  
+  adoptedCallback() {
+    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
+    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
+  }
+
+  get open() {
+    return this.getAttribute('open') === 'true';
+  }
+
+  set open(newValue: boolean) {
+    this.setAttribute('open', `${newValue}`);
+  }
+
+  get node() {
+    return this.getElementByAttribute('node') as ModalNode;
+  }
+
+  get shadow() {
+    return this.getAttribute('shadow') === 'true';
+  }
+
+  get animation() {
+    return this.getAttribute('animation') === 'true';
+  }
+
+  get duration() {
+    return Number(this.getAttribute('duration')) || 300;
+  }
+
+  get active() {
+    return this.getAttribute('active') || '';
+  }
+
+  get ariaModal() {
+    return !!this.getAttribute('aria-modal');
+  }
+
+  set ariaModal(newValue: boolean) {
+    this.setAttribute('aria-modal', `${newValue}`);
+  }
+
+  get role() {
+    return this.getAttribute('role') || 'dialog';
+  }
+
+  private getActiveElement(target: HTMLElement) {
+    if(target.shadowRoot) {
+      this.getActiveElement(target.shadowRoot.activeElement as HTMLElement);
+    }
+    return target;
+  }
+
+  private focusFirst() {
+    this.focusAfterClose = document.activeElement as HTMLElement;
+    
+    if(this.focusAfterClose.shadowRoot) {
+      this.focusAfterClose = this.getActiveElement(this.focusAfterClose.shadowRoot!.activeElement as HTMLElement);
+    }
+    if(!this.firstFocus) {
+      // TODO: Fix error message to describe more detail
+      throw new Error('firstFocus could not find.');
+    }
+    this.firstFocus.focus();
+  }
+
+  private focusBack() {
+    this.focusAfterClose?.focus();
   }
 
   private setTabIndex() {
     const modal = this.shadowRoot?.querySelector('slot');
     const prevSibling = modal?.previousElementSibling;
     const nextSibling = modal?.nextElementSibling;
-    if(prevSibling) {
-      prevSibling.setAttribute('tabindex', '0');
+    if(!prevSibling || !nextSibling) {
+      return;
     }
-    if(nextSibling) {
+    if(this.open) {
+      prevSibling.setAttribute('tabindex', '0');
       nextSibling.setAttribute('tabindex', '0');
+    } else {
+      prevSibling.removeAttribute('tabindex');
+      nextSibling.removeAttribute('tabindex');
     }
   }
 
   private changeModalClassList(method: 'add' | 'remove') {
-    const { node, shadow, active } = this.props;
-    if(shadow) {
+    if(this.shadow) {
       if(!this.shadowNode) {
         throw new Error('shadowNode could not find. Make sure that `node` property element is custom element.');
       }
-      this.shadowNode.classList[method](active);
+      this.shadowNode.classList[method](this.active);
     } else {
-      node.classList[method](active);
+      this.node.classList[method](this.active);
     }
+  }
+
+  private setActiveStyle(backdrop: HTMLElement) {
+    backdrop.classList.add('active');
+    this.changeModalClassList('add');
   }
   
   private setHideStyle(backdrop: HTMLElement) {
-    const { animation, duration } = this.props;
-    if(animation) {
+    if(this.animation) {
       backdrop.classList.add('hide');
       setTimeout(() => {
         backdrop.classList.remove('active');
         backdrop.classList.remove('hide');
         this.changeModalClassList('remove');
-      }, duration);
+        this.focusBack();
+      }, this.duration);
     } else {
       backdrop.classList.remove('active');
       this.changeModalClassList('remove');
+      this.focusBack();
     }
   }
 
-  private changeStyle() {
-    const { open } = this.props;
-    
+  private handleOnOpen() {
     const backdrop = this.shadowRoot?.getElementById("aria-modal-backdrop");
     if(!backdrop) {
       throw new Error('Could not find aria-modal-backdrop id');
     }
 
-    if(open) {
-      backdrop.classList.add('active');
-      this.changeModalClassList('add');
+    if(this.open) {
+      this.setActiveStyle(backdrop);
+      this.focusFirst();
     } else {
       this.setHideStyle(backdrop);
     }
+    this.setTabIndex();
   }
 
   private validateAriaAttrs(arr: string[]) {
@@ -252,10 +284,10 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private setShadowNode() {
-    if(!this.props.node.shadowRoot) {
+    if(!this.node.shadowRoot) {
       throw new Error('node property is not custom element.');
     }
-    const children = this.props.node.shadowRoot.children;
+    const children = this.node.shadowRoot.children;
     if(children.length > 2 || children.length === 0) {
       throw new Error('Element that is specified by node property can contain just 1 child element.');
     }
@@ -263,10 +295,10 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private setFirstFocus() {
-    if(!this.props.node.firstFocus) {
+    if(!this.node.firstFocus) {
       throw new Error('firstFocus function could not find. If you use shadow dom, please define firstFocus function.')
     }
-    this.props.firstFocus = this.props.node.firstFocus();
+    this.firstFocus = this.node.firstFocus();
   }
 
   private handleOnDOMContentLoaded = () => {
@@ -276,8 +308,8 @@ export default class AriaModalElement extends HTMLElement {
 
   private isFocusable(target: HTMLElement, element: HTMLElement) {
     let activeElement = null;
-    if(this.props.shadow) {
-      activeElement = this.props.node.shadowRoot?.activeElement;
+    if(this.shadow) {
+      activeElement = this.node.shadowRoot?.activeElement;
     } else {
       activeElement = document.activeElement;
     }
@@ -310,8 +342,8 @@ export default class AriaModalElement extends HTMLElement {
   
   private moveFocusToFirst = (e: FocusEvent) => {
     const target = e.target as HTMLElement;
-    let node = this.props.node;
-    if(this.props.shadow && this.shadowNode) {
+    let node = this.node;
+    if(this.shadow && this.shadowNode) {
       node = this.shadowNode;
     }
     this.focusFirstElement(target, node);
@@ -319,8 +351,8 @@ export default class AriaModalElement extends HTMLElement {
   
   private moveFocusToLast = (e: FocusEvent) => {
     const target = e.target as HTMLElement;
-    let node = this.props.node;
-    if(this.props.shadow && this.shadowNode) {
+    let node = this.node;
+    if(this.shadow && this.shadowNode) {
       node = this.shadowNode;
     }
     this.focusLastElement(target, node);
@@ -328,7 +360,7 @@ export default class AriaModalElement extends HTMLElement {
 
   // TODO: Fix any type
   private handleOnClickBackdrop = (e: any) => {
-    const id = `#${this.props.node.getAttribute('id')}`;
+    const id = `#${this.node.getAttribute('id')}`;
     if(!e.target.closest(id)) {
       this.setAttribute('open', 'false');
     }
@@ -336,7 +368,7 @@ export default class AriaModalElement extends HTMLElement {
 
   private handleOnKeyup = (e: KeyboardEvent) => {
     const key = e.keyCode;
-    if(key === 27 && this.props.open) {
+    if(key === 27 && this.open) {
       this.setAttribute('open', 'false');
       e.stopPropagation();
     }
