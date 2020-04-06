@@ -221,11 +221,13 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private setActiveStyle(backdrop: HTMLElement) {
+    document.body.style.overflow = 'hidden';
     backdrop.classList.add('active');
     this.changeModalClassList('add');
   }
   
   private setHideStyle(backdrop: HTMLElement) {
+    document.body.style.overflow = 'auto';
     if(this.animation) {
       backdrop.classList.add('hide');
       setTimeout(() => {
