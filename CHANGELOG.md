@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.0
+
+- Supported frozen scroll
+
 ## v2.1.1
 
 - Fixed bugs
