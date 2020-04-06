@@ -6,7 +6,7 @@ Accessible modal with Web Components
 
 ## About
 
-aria-modal that is a fully accessible is built according [WAI-ARIA Authoring Practices](https://www.w3.org/TR/wai-aria-practices/#dialog_modal). And it provide the only simple features. It makes be easy to implement accessible modal. If you use polyfill, you can use [@webcomponents/webcomponentsjs](https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs).
+aria-modal that is a fully accessible is built according to [WAI-ARIA Authoring Practices](https://www.w3.org/TR/wai-aria-practices/#dialog_modal). And it provide the only simple features. It makes be easy to implement accessible modal. If you use polyfill, you can use [@webcomponents/webcomponentsjs](https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs).
 
 ## Features
 
