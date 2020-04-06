@@ -35,6 +35,7 @@ export default class AriaModalElement extends HTMLElement {
           bottom: 0;
           left: 0;
           z-index: var(--backdrop-z-index);
+          overflow-y: auto;
           ${this.animation ? 'opacity: 0;' : ''}
         }
         .backdrop.active {
