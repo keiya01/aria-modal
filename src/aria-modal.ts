@@ -169,10 +169,11 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private getActiveElement(target: HTMLElement) {
+    let result = target;
     if(target.shadowRoot) {
-      this.getActiveElement(target.shadowRoot.activeElement as HTMLElement);
+      result = this.getActiveElement(target.shadowRoot.activeElement as HTMLElement);
     }
-    return target;
+    return result;
   }
 
   private focusFirst() {
