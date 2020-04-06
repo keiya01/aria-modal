@@ -4,6 +4,21 @@
 
 Accessible modal with Web Components
 
+## About
+
+aria-modal that is a fully accessible is built according [WAI-ARIA Authoring Practices](https://www.w3.org/TR/wai-aria-practices/#dialog_modal). And it provide the only simple features. It makes be easy to implement accessible modal. If you use polyfill, you can use [@webcomponents/webcomponentsjs](https://github.com/webcomponents/polyfills/tree/master/packages/webcomponentsjs).
+
+## Features
+
+- Focus is moved to first-focus element. Tab and Shift+Tab keys will cycle through the modal's focusable nodes.
+- ESC key closes the modal.
+- Scrolling is frozen on the document.body.
+- When the modal closes, focus returns to the element that was focused before the modal are shown.
+- The dialog element has an ARIA role of dialog by default(You can change role).
+- The dialog element must has either aria-label or aria-labelledby.
+- If clicking the backdrop, the modal is closed.
+- If animation property is true, the modal can use the fade-in(out) animation.
+
 ## Install
 
 Using npm:
