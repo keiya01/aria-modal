@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.2.5
+
+- Supported scrolling on the modal
+
 ## v2.2.4
 
 - Fixed bugs
