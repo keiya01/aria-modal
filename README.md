@@ -173,10 +173,17 @@ Required: `false`, Type: `string`
   
 `active` is class name that is added when `open` props is changed to `true`.
 
+#### hide
+
+Required: `false`, Type: `string`  
+  
+`hide` is class name that is added when `open` props is changed to `false`.
+
 #### aria-label or aria-labelledby
 
 Required: `true`, Type: `string`  
   
+You must include `aria-label` or `aria-labelledby` property to your modal.  
 See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-labelledby_attribute
 
 #### aria-describedby
@@ -189,7 +196,8 @@ See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniq
 
 Required: `true`, Type: `string`  
   
-Assignable value are `dialog` or `alertdialog`. See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles
+You must include `role` property to your modal.  
+Assignable value is `dialog` or `alertdialog`. See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles
 
 #### aria-modal
 

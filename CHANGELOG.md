@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.4.0
+
+- Added `hide` property to run animation for hide phase
+- Deleted `aria-*` and `role` validation
+- Fixed bugs
+
 ## v2.3.1
 
 - Fixed bugs that the modal don't open when initial `open` property is true
