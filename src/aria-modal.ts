@@ -14,6 +14,9 @@ export default class AriaModalElement extends HTMLElement {
   get styles() {
     return `
       <style>
+        :host([open="true"]) {
+          display: block;
+        }
         @keyframes fade-in {
           from {
             opacity: 0;
@@ -83,12 +86,7 @@ export default class AriaModalElement extends HTMLElement {
     
     this.focusAfterClose = null;
 
-    if(this.ariaModal) {
-      this.ariaModal = true;
-    }
-
     const shadowRoot = this.attachShadow({ mode: 'open' });
-
     shadowRoot.appendChild(this.template.content.cloneNode(true));
   }
 
@@ -103,6 +101,9 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   connectedCallback() {
+    if(this.ariaModal) {
+      this.ariaModal = true;
+    }
     document.addEventListener('keyup', this.handleOnKeyup);
     this.shadowRoot!.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
     this.shadowRoot!.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
