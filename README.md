@@ -203,7 +203,8 @@ Assignable value is `dialog` or `alertdialog`. See https://developer.mozilla.org
 
 Required: `false`, Type: `boolean`, Default: `true`  
   
-See https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/dialog_role
+This property is some problems, see this article https://developer.paciellogroup.com/blog/2018/06/the-current-state-of-modal-dialog-accessibility/  
+And if you want to know about `aria-modal`, see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/dialog_role
 
 ### Warning
 
