@@ -1,5 +1,3 @@
-const roles = ['dialog', 'alertdialog'];
-
 type ModalNode = HTMLElement & { firstFocus?: () => HTMLElement };
 
 /**
@@ -105,12 +103,6 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.validateAriaAttrs(['aria-label', 'aria-labelledby']);
-    
-    if(!roles.includes(this.role)) {
-      throw new Error(`role attribution is assigned invalid value. assignable value are ${roles.join(' or ')}.`);
-    }
-    
     document.addEventListener('keyup', this.handleOnKeyup);
     this.shadowRoot!.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
     this.shadowRoot!.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
@@ -168,10 +160,6 @@ export default class AriaModalElement extends HTMLElement {
 
   set ariaModal(newValue: boolean) {
     this.setAttribute('aria-modal', `${newValue}`);
-  }
-
-  get role() {
-    return this.getAttribute('role') || 'dialog';
   }
 
   private getActiveElement(target: HTMLElement) {
@@ -269,22 +257,6 @@ export default class AriaModalElement extends HTMLElement {
       this.setHideStyle(backdrop);
     }
     this.setTabIndex();
-  }
-
-  private validateAriaAttrs(arr: string[]) {
-    const validArr: string[] = [];
-    arr.map(val => {
-      if(this.getAttribute(val)) {
-        validArr.push(val);
-      }
-    });
-    if(validArr.length === 0) {
-      throw new Error(`${arr.join(' or ')} must be included on aria-modal.`);
-    }
-    if(validArr.length >= 2) {
-      throw new Error(`${arr.join(' or ')} can include just one on aria-modal.`);
-    }
-    return validArr[0];
   }
 
   private getElementByAttribute(name: string) {
