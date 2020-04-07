@@ -14,9 +14,14 @@ export default class AriaModalElement extends HTMLElement {
   get styles() {
     return `
       <style>
-        :host([open="true"]) {
-          display: block;
+        :host {
+          visibility: hidden;
         }
+
+        :host([open="true"]) {
+          visibility: visible;
+        }
+
         @keyframes fade-in {
           from {
             opacity: 0;
@@ -25,6 +30,7 @@ export default class AriaModalElement extends HTMLElement {
             opacity: 1;
           }
         }
+
         @keyframes fade-out {
           from {
             opacity: 1;
@@ -33,6 +39,7 @@ export default class AriaModalElement extends HTMLElement {
             opacity: 0;
           }
         }
+
         .backdrop {
           display: none;
           background-color: var(--backdrop-color);
@@ -45,6 +52,7 @@ export default class AriaModalElement extends HTMLElement {
           overflow-y: auto;
           ${this.animation ? 'opacity: 0;' : ''}
         }
+
         .backdrop.active {
           display: var(--backdrop-display);
           ${this.animation
@@ -54,6 +62,7 @@ export default class AriaModalElement extends HTMLElement {
             ''
           }
         }
+
         .backdrop.hide {
           ${this.animation
             ?
