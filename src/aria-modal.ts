@@ -14,13 +14,6 @@ export default class AriaModalElement extends HTMLElement {
   get styles() {
     return `
       <style>
-        :host {
-          visibility: hidden;
-        }
-
-        :host([open="true"]) {
-          visibility: visible;
-        }
 
         @keyframes fade-in {
           from {
@@ -110,6 +103,7 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   connectedCallback() {
+    this.style.visibility = 'hidden';
     if(this.ariaModal) {
       this.ariaModal = true;
     }
@@ -232,6 +226,7 @@ export default class AriaModalElement extends HTMLElement {
     document.body.style.overflow = 'hidden';
     backdrop.classList.add('active');
     this.changeModalClassList('add', 'active');
+    this.style.visibility = 'visible';
   }
   
   private setHideStyle(backdrop: HTMLElement) {
@@ -244,12 +239,14 @@ export default class AriaModalElement extends HTMLElement {
         backdrop.classList.remove('hide');
         this.changeModalClassList('remove', 'active');
         this.changeModalClassList('remove', 'hide');
+        this.style.visibility = 'hidden';
         this.focusBack();
       }, this.duration);
     } else {
       backdrop.classList.remove('active');
       this.changeModalClassList('remove', 'active');
       this.changeModalClassList('remove', 'hide');
+      this.style.visibility = 'hidden';
       this.focusBack();
     }
   }
