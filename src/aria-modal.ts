@@ -83,7 +83,7 @@ export default class AriaModalElement extends HTMLElement {
     
     this.focusAfterClose = null;
 
-    if(!this.ariaModal) {
+    if(this.ariaModal) {
       this.ariaModal = true;
     }
 
@@ -155,7 +155,7 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   get ariaModal() {
-    return !!this.getAttribute('aria-modal');
+    return this.getAttribute('aria-modal') !== 'false';
   }
 
   set ariaModal(newValue: boolean) {
