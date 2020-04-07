@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.4.2
+
+- Fixed bugs that web contents is not read because aria-modal is **visible**.
+
 ## v2.4.1
 
 - Fixed bugs
