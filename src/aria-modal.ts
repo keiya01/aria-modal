@@ -103,9 +103,11 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   connectedCallback() {
-    this.style.visibility = 'hidden';
     if(this.ariaModal) {
       this.ariaModal = true;
+    }
+    if(!this.open) {
+      this.style.visibility = 'hidden';
     }
     document.addEventListener('keyup', this.handleOnKeyup);
     this.shadowRoot!.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
