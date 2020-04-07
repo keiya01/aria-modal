@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.4.1
+
+- Fixed bugs
+
 ## v2.4.0
 
 - Added `hide` property to run animation for hide phase
