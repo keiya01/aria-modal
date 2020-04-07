@@ -3,7 +3,7 @@
 }
 
 #modal {
-	--backdrop-display: flex;
+	--backdrop-display: block;
 	--backdrop-color: rgba(0, 0, 0, 0.3);
 	--backdrop-position: absolute;
 	--animation-function: ease-in;
@@ -12,7 +12,7 @@
 .wrapper {
 	display: none;
 	text-align: center;
-	margin: auto;
+	margin: 0 auto;
 	background-color: #eee;
 	padding: 5px;
 	width: 90%;
@@ -20,8 +20,32 @@
 	border-radius: 10px;
 }
 
+@keyframes slide-in {
+	from {
+		transform: translateY(-100%);
+	}
+	to {
+		transform: translateY(45%);
+	}
+}
+
 .wrapper.active {
 	display: block;
+	animation: slide-in 500ms ease-in forwards;
+}
+
+@keyframes slide-out {
+	from {
+		transform: translateY(45%);
+	}
+	to {
+		transform: translateY(-100%);
+	}
+}
+
+.wrapper.hide {
+	display: block;
+	animation: slide-out 500ms ease forwards;
 }
 
 .title {
