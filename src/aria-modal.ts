@@ -2,6 +2,12 @@ const roles = ['dialog', 'alertdialog'];
 
 type ModalNode = HTMLElement & { firstFocus?: () => HTMLElement };
 
+/**
+ * TODO
+ * - `scroll` property to accept scroll
+ * - `disable` property to make disable when click backdrop
+ */
+
 export default class AriaModalElement extends HTMLElement {
   private firstFocus?: HTMLElement;
   private focusAfterClose: HTMLElement | null;
@@ -152,6 +158,10 @@ export default class AriaModalElement extends HTMLElement {
     return this.getAttribute('active') || '';
   }
 
+  get hide() {
+    return this.getAttribute('hide') || '';
+  }
+
   get ariaModal() {
     return !!this.getAttribute('aria-modal');
   }
@@ -205,36 +215,43 @@ export default class AriaModalElement extends HTMLElement {
     }
   }
 
-  private changeModalClassList(method: 'add' | 'remove') {
+  private changeModalClassList(method: 'add' | 'remove', className: 'active' | 'hide') {
+    if(!this[className]) {
+      return;
+    }
+    
     if(this.shadow) {
       if(!this.shadowNode) {
         throw new Error('shadowNode could not find. Make sure that `node` property element is custom element.');
       }
-      this.shadowNode.classList[method](this.active);
+      this.shadowNode.classList[method](this[className]);
     } else {
-      this.node.classList[method](this.active);
+      this.node.classList[method](this[className]);
     }
   }
 
   private setActiveStyle(backdrop: HTMLElement) {
     document.body.style.overflow = 'hidden';
     backdrop.classList.add('active');
-    this.changeModalClassList('add');
+    this.changeModalClassList('add', 'active');
   }
   
   private setHideStyle(backdrop: HTMLElement) {
     document.body.style.overflow = 'auto';
     if(this.animation) {
       backdrop.classList.add('hide');
+      this.changeModalClassList('add', 'hide');
       setTimeout(() => {
         backdrop.classList.remove('active');
         backdrop.classList.remove('hide');
-        this.changeModalClassList('remove');
+        this.changeModalClassList('remove', 'active');
+        this.changeModalClassList('remove', 'hide');
         this.focusBack();
       }, this.duration);
     } else {
       backdrop.classList.remove('active');
-      this.changeModalClassList('remove');
+      this.changeModalClassList('remove', 'active');
+      this.changeModalClassList('remove', 'hide');
       this.focusBack();
     }
   }
