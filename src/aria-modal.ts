@@ -14,6 +14,9 @@ export default class AriaModalElement extends HTMLElement {
   get styles() {
     return `
       <style>
+        :host {
+          display: block;
+        }
 
         @keyframes fade-in {
           from {
@@ -34,7 +37,7 @@ export default class AriaModalElement extends HTMLElement {
         }
 
         .backdrop {
-          display: none;
+          display: var(--backdrop-display);
           background-color: var(--backdrop-color);
           position: var(--backdrop-position);
           top: 0;
@@ -47,7 +50,6 @@ export default class AriaModalElement extends HTMLElement {
         }
 
         .backdrop.active {
-          display: var(--backdrop-display);
           ${this.animation
             ?
             `animation: fade-in ${this.duration}ms var(--animation-function) forwards;`
@@ -226,9 +228,9 @@ export default class AriaModalElement extends HTMLElement {
 
   private setActiveStyle(backdrop: HTMLElement) {
     document.body.style.overflow = 'hidden';
+    this.style.visibility = 'visible';
     backdrop.classList.add('active');
     this.changeModalClassList('add', 'active');
-    this.style.visibility = 'visible';
   }
   
   private setHideStyle(backdrop: HTMLElement) {
