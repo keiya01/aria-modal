@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.5.0
+
+- **Breaking Change**: Added `app` property. This property is require to run aria-modal.
+- **Breaking Change**: Changed default value of `aria-modal` property to `false`, because `aria-modal` property is contained some bugs.
+- Fixed to set default `display` style to `display: block;` for aria-modal(`:host`)
+
 ## v2.4.2, v2.4.3, v2.4.4
 
 - Fixed bugs that web contents is not read because aria-modal is **visible**.
