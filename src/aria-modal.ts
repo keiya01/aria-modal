@@ -105,9 +105,6 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   connectedCallback() {
-    if(this.ariaModal) {
-      this.ariaModal = true;
-    }
     if(!this.open) {
       this.style.visibility = 'hidden';
     }
@@ -164,14 +161,6 @@ export default class AriaModalElement extends HTMLElement {
 
   get hide() {
     return this.getAttribute('hide') || '';
-  }
-
-  get ariaModal() {
-    return this.getAttribute('aria-modal') !== 'false';
-  }
-
-  set ariaModal(newValue: boolean) {
-    this.setAttribute('aria-modal', `${newValue}`);
   }
 
   private getActiveElement(target: HTMLElement) {
