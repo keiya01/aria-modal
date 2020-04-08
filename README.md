@@ -143,6 +143,14 @@ class SampleModal extends HTMLElement {
 
 ```
 
+#### app
+
+Required: `true`, Type: `class-name`  
+  
+It is used to set `aria-hidden` to your `app` element. You should set main contents `id` name.
+  
+**Notice**:  Don't contain `aria-modal` inside main contents. If you contain `aria-modal` to your main contents, screen readers can not find `aria-modal`.
+
 #### node
 
 Required: `true`, Type: `class-name`  
@@ -201,7 +209,7 @@ Assignable value is `dialog` or `alertdialog`. See https://developer.mozilla.org
 
 #### aria-modal
 
-Required: `false`, Type: `boolean`, Default: `true`  
+Required: `false`, Type: `boolean`, Default: `false`  
   
 This property is some problems, see this article https://developer.paciellogroup.com/blog/2018/06/the-current-state-of-modal-dialog-accessibility/  
 And if you want to know about `aria-modal`, see https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles/dialog_role
