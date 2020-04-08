@@ -9,10 +9,11 @@
   <!-- <script src="https://unpkg.com/aria-modal@1.0.0/dist/index.umd.js" defer></script> -->
 </head>
 <body>
-  <button type="button" onclick="openModal()">modal open</button>
+  <button id="app" type="button" onclick="openModal()">modal open</button>
   <aria-modal
     id="modal"
     first-focus="name"
+    app="app"
     node="wrapper"
     animation="true"
     active="active"
