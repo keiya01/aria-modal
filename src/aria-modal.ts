@@ -138,6 +138,10 @@ export default class AriaModalElement extends HTMLElement {
     this.setAttribute('open', `${newValue}`);
   }
 
+  get app() {
+    return this.getElementByAttribute('app');
+  }
+
   get node() {
     return this.getElementByAttribute('node') as ModalNode;
   }
@@ -262,9 +266,11 @@ export default class AriaModalElement extends HTMLElement {
     }
 
     if(this.open) {
+      this.app.setAttribute('aria-hidden', 'true');
       this.setActiveStyle(backdrop);
       this.focusFirst();
     } else {
+      this.app.setAttribute('aria-hidden', 'false');
       this.setHideStyle(backdrop);
     }
     this.setTabIndex();
