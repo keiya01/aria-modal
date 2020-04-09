@@ -52,14 +52,13 @@ Please see following example.
 
 <aria-modal
   id="modal"
+  app="app"
   first-focus="button"
   node="node"
   animation="true"
   active="active"
-  role="dialog"
-  aria-label="sample modal"
 >
-  <div id="node" slot="modal">
+  <div id="node" slot="modal" role="dialog" aria-labelledby="title">
     <!-- ... -->
     <button id="button"></button>
   </div>
@@ -73,13 +72,15 @@ If you use custom element, see the following code.
 
 <aria-modal
   id="modal"
+  app="app"
   node="node"
   animation="true"
   active="active"
-  role="dialog"
-  aria-label="sample modal"
 >
-  <!-- <simple-modal> must be contained `firstFocus` function that return HTMLElement -->
+  <!-- 
+    <simple-modal> must be contained `firstFocus` function that return HTMLElement.
+    And You must set role and aria-* attributes to your modal.
+  -->
   <simple-modal id="node" slot="modal"></simple-modal>
 </aria-modal>
 
@@ -96,6 +97,26 @@ aria-modal {
   --backdrop-color: rgba(0, 0, 0, 0.3); /* background-color for backdrop */
   --backdrop-position: absolute; /* or fixed */
   --backdrop-z-index: 0;
+}
+
+```
+
+#### Tips
+
+If you want to set your modal to center, you can use `margin: auto;` and `flexbox` property.
+
+```css
+
+aria-modal {
+  --backdrop-display: flex;
+  /* ... */
+}
+
+.your-modal {
+  margin: auto;
+  height: 300px;
+  width: 500px;
+  background-color: #fff;
 }
 
 ```

@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.5.1
+
+- Fixed README.md
+
 ## v2.5.0
 
 - **Breaking Change**: Added `app` property. This property is require to run aria-modal.
