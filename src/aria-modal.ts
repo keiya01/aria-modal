@@ -29,7 +29,6 @@ export default class AriaModalElement extends HTMLElement {
 
         :host([open="true"]) {
           opacity: 1;
-          visibility: visible;
         }
       </style>
     `;
@@ -187,6 +186,7 @@ export default class AriaModalElement extends HTMLElement {
       this.changeModalClassList('add', 'hide');
     } else {
       this.changeModalClassList('remove', 'active');
+      this.style.visibility = 'hidden';
     }
   }
 
@@ -337,6 +337,7 @@ export default class AriaModalElement extends HTMLElement {
   private handleOnLoad = () => {
     if(this.animation) {
       this.style.transition = `opacity var(--animation-duration) var(--animation-function)`;
+      this.style.willChange = `opacity`;
     }
   }
 }
