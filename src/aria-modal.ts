@@ -15,28 +15,6 @@ export default class AriaModalElement extends HTMLElement {
     return `
       <style>
         :host {
-          display: block;
-        }
-
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-
-        @keyframes fade-out {
-          from {
-            opacity: 1;
-          }
-          to {
-            opacity: 0;
-          }
-        }
-
-        .backdrop {
           display: var(--backdrop-display);
           background-color: var(--backdrop-color);
           position: var(--backdrop-position);
@@ -46,25 +24,12 @@ export default class AriaModalElement extends HTMLElement {
           left: 0;
           z-index: var(--backdrop-z-index);
           overflow-y: auto;
-          ${this.animation ? 'opacity: 0;' : ''}
+          opacity: 0;
         }
 
-        .backdrop.active {
-          ${this.animation
-            ?
-            `animation: fade-in ${this.duration}ms var(--animation-function) forwards;`
-            :
-            ''
-          }
-        }
-
-        .backdrop.hide {
-          ${this.animation
-            ?
-            `animation: fade-out ${this.duration}ms var(--animation-function) forwards;`
-            :
-            ''
-          }
+        :host([open="true"]) {
+          opacity: 1;
+          visibility: visible;
         }
       </style>
     `;
@@ -75,11 +40,9 @@ export default class AriaModalElement extends HTMLElement {
 
     template.innerHTML = `
       ${this.styles}
-      <div id="aria-modal-backdrop" class="backdrop">
-        <div id="first-descendant"></div>
-          <slot name="modal"></slot>
-        <div id="last-descendant"></div>
-      </div>
+      <div id="first-descendant"></div>
+      <slot name="modal"></slot>
+      <div id="last-descendant"></div>
     `;
   
     return template;
@@ -106,27 +69,29 @@ export default class AriaModalElement extends HTMLElement {
 
   connectedCallback() {
     if(!this.open) {
+      this.open = false;
       this.style.visibility = 'hidden';
     }
+
     document.addEventListener('keyup', this.handleOnKeyup);
-    this.shadowRoot!.getElementById('aria-modal-backdrop')?.addEventListener('click', this.handleOnClickBackdrop, true);
+    this.addEventListener('click', this.handleOnClickBackdrop);
+    this.addEventListener('transitionend', this.handleOnTransitionEnd);
     this.shadowRoot!.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
     this.shadowRoot!.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
     window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
+    window.addEventListener('load', this.handleOnLoad);
   }
-
+  
   disconnectedCallback() {
-    this.shadowRoot?.getElementById('aria-modal-backdrop')?.removeEventListener('click', this.handleOnClickBackdrop, true);
+    document.removeEventListener('keyup', this.handleOnKeyup);
+    this.removeEventListener('click', this.handleOnClickBackdrop);
+    this.removeEventListener('transitionend', this.handleOnTransitionEnd);
     this.shadowRoot?.getElementById('first-descendant')?.removeEventListener('focus', this.moveFocusToLast, true);
     this.shadowRoot?.getElementById('last-descendant')?.removeEventListener('focus', this.moveFocusToFirst, true);
     window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
+    window.removeEventListener('load', this.handleOnLoad);
   }
   
-  adoptedCallback() {
-    this.shadowRoot?.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
-    this.shadowRoot?.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
-  }
-
   get open() {
     return this.getAttribute('open') === 'true';
   }
@@ -151,16 +116,24 @@ export default class AriaModalElement extends HTMLElement {
     return this.getAttribute('animation') === 'true';
   }
 
-  get duration() {
-    return Number(this.getAttribute('duration')) || 300;
-  }
-
   get active() {
     return this.getAttribute('active') || '';
   }
 
   get hide() {
     return this.getAttribute('hide') || '';
+  }
+
+  private getElementByAttribute(name: string) {
+    const id = this.getAttribute(name);
+    if(!id) {
+      throw new Error(`${name} is not assigned`);
+    }
+    const element = document.getElementById(id);
+    if(!element) {
+      throw new Error(`${name} could not find. ${name} must be assigned id name.`);
+    }
+    return element;
   }
 
   private getActiveElement(target: HTMLElement) {
@@ -171,7 +144,7 @@ export default class AriaModalElement extends HTMLElement {
     return result;
   }
 
-  private focusFirst() {
+  private focusFirst = () => {
     this.focusAfterClose = document.activeElement as HTMLElement;
     
     if(this.focusAfterClose.shadowRoot) {
@@ -186,6 +159,35 @@ export default class AriaModalElement extends HTMLElement {
 
   private focusBack() {
     this.focusAfterClose?.focus();
+  }
+
+  private changeModalClassList(method: 'add' | 'remove', className: 'active' | 'hide') {
+    if(!this[className]) {
+      return;
+    }
+    
+    if(this.shadow) {
+      if(!this.shadowNode) {
+        throw new Error('shadowNode could not find. Make sure that `node` property element is custom element.');
+      }
+      this.shadowNode.classList[method](this[className]);
+    } else {
+      this.node.classList[method](this[className]);
+    }
+  }
+
+  private setActiveStyle() {
+    document.body.style.overflow = 'hidden';
+    this.changeModalClassList('add', 'active');
+  }
+  
+  private setHideStyle() {
+    document.body.style.overflow = 'auto';
+    if(this.animation) {
+      this.changeModalClassList('add', 'hide');
+    } else {
+      this.changeModalClassList('remove', 'active');
+    }
   }
 
   private setTabIndex() {
@@ -204,107 +206,32 @@ export default class AriaModalElement extends HTMLElement {
     }
   }
 
-  private changeModalClassList(method: 'add' | 'remove', className: 'active' | 'hide') {
-    if(!this[className]) {
-      return;
-    }
-    
-    if(this.shadow) {
-      if(!this.shadowNode) {
-        throw new Error('shadowNode could not find. Make sure that `node` property element is custom element.');
-      }
-      this.shadowNode.classList[method](this[className]);
-    } else {
-      this.node.classList[method](this[className]);
-    }
-  }
-
-  private setActiveStyle(backdrop: HTMLElement) {
-    document.body.style.overflow = 'hidden';
-    this.style.visibility = 'visible';
-    backdrop.classList.add('active');
-    this.changeModalClassList('add', 'active');
-  }
-  
-  private setHideStyle(backdrop: HTMLElement) {
-    document.body.style.overflow = 'auto';
-    if(this.animation) {
-      backdrop.classList.add('hide');
-      this.changeModalClassList('add', 'hide');
-      setTimeout(() => {
-        backdrop.classList.remove('active');
-        backdrop.classList.remove('hide');
-        this.changeModalClassList('remove', 'active');
-        this.changeModalClassList('remove', 'hide');
-        this.style.visibility = 'hidden';
-        this.focusBack();
-      }, this.duration);
-    } else {
-      backdrop.classList.remove('active');
-      this.changeModalClassList('remove', 'active');
-      this.changeModalClassList('remove', 'hide');
-      this.style.visibility = 'hidden';
-      this.focusBack();
-    }
-  }
-
   private handleOnOpen() {
-    const backdrop = this.shadowRoot?.getElementById("aria-modal-backdrop");
-    if(!backdrop) {
-      throw new Error('Could not find aria-modal-backdrop id');
-    }
-
     if(this.open) {
+      this.style.visibility = 'visible';
       this.app.setAttribute('aria-hidden', 'true');
-      this.setActiveStyle(backdrop);
-      this.focusFirst();
+      this.setActiveStyle();
+      if(!this.animation) {
+        this.focusFirst();
+      }
     } else {
       this.app.setAttribute('aria-hidden', 'false');
-      this.setHideStyle(backdrop);
+      this.setHideStyle();
+      if(!this.animation) {
+        this.focusBack();
+      }
     }
     this.setTabIndex();
   }
 
-  private getElementByAttribute(name: string) {
-    const id = this.getAttribute(name);
-    if(!id) {
-      throw new Error(`${name} is not assigned`);
-    }
-    const element = document.getElementById(id);
-    if(!element) {
-      throw new Error(`${name} could not find. ${name} must be assigned id name.`);
-    }
-    return element;
-  }
-
-  private setShadowNode() {
-    if(!this.node.shadowRoot) {
-      throw new Error('node property is not custom element.');
-    }
-    const child = this.node.shadowRoot.children.item(0);
-    if(!child) {
-      throw new Error('Element that is specified by node property can contain just 1 child element.');
-    }
-    this.shadowNode = child as HTMLElement;
-  }
-
-  private setFirstFocus() {
-    if(!this.node.firstFocus) {
-      throw new Error('firstFocus function could not find. If you use shadow dom, please define firstFocus function.')
-    }
-    this.firstFocus = this.node.firstFocus();
-  }
-
-  private handleOnDOMContentLoaded = () => {
-    if(this.shadow) {
-      this.setShadowNode();
-      this.setFirstFocus();
-    } else {
-      this.firstFocus = this.getElementByAttribute('first-focus');
-    }
-
+  private handleOnTransitionEnd = () => {
     if(this.open) {
-      this.handleOnOpen();
+      this.focusFirst();
+    } else {
+      this.changeModalClassList('remove', 'active');
+      this.changeModalClassList('remove', 'hide');
+      this.focusBack();
+      this.style.visibility = 'hidden';
     }
   }
 
@@ -364,15 +291,52 @@ export default class AriaModalElement extends HTMLElement {
   private handleOnClickBackdrop = (e: any) => {
     const id = `#${this.node.getAttribute('id')}`;
     if(!e.target.closest(id)) {
-      this.setAttribute('open', 'false');
+      this.open = false;
     }
   }
 
   private handleOnKeyup = (e: KeyboardEvent) => {
     const key = e.keyCode;
     if(key === 27 && this.open) {
-      this.setAttribute('open', 'false');
+      this.open = false;
       e.stopPropagation();
+    }
+  }
+
+  private setShadowNode() {
+    if(!this.node.shadowRoot) {
+      throw new Error('node property is not custom element.');
+    }
+    const child = this.node.shadowRoot.children.item(0);
+    if(!child) {
+      throw new Error('Element that is specified by node property can contain just 1 child element.');
+    }
+    this.shadowNode = child as HTMLElement;
+  }
+
+  private setFirstFocus() {
+    if(!this.node.firstFocus) {
+      throw new Error('firstFocus function could not find. If you use shadow dom, please define firstFocus function.')
+    }
+    this.firstFocus = this.node.firstFocus();
+  }
+
+  private handleOnDOMContentLoaded = () => {
+    if(this.shadow) {
+      this.setShadowNode();
+      this.setFirstFocus();
+    } else {
+      this.firstFocus = this.getElementByAttribute('first-focus');
+    }
+
+    if(this.open) {
+      this.handleOnOpen();
+    }
+  }
+
+  private handleOnLoad = () => {
+    if(this.animation) {
+      this.style.transition = `opacity var(--animation-duration) var(--animation-function)`;
     }
   }
 }
