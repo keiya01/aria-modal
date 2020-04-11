@@ -51,7 +51,6 @@ Please see following example.
 ```html
 
 <aria-modal
-  id="modal"
   app="app"
   first-focus="button"
   node="node"
@@ -71,11 +70,11 @@ If you use custom element, see the following code.
 ```html
 
 <aria-modal
-  id="modal"
   app="app"
   node="node"
-  animation="true"
   active="active"
+  shadow="true"
+  animation="true"
 >
   <!-- 
     <simple-modal> must be contained `firstFocus` function that return HTMLElement.
@@ -93,10 +92,18 @@ Using css variables, you can apply your style to `<aria-modal>`.
 ```css
 
 aria-modal {
+  /* required */
   --backdrop-display: block; /* or flex, inline-block, etc... */
+  /* required */
   --backdrop-color: rgba(0, 0, 0, 0.3); /* background-color for backdrop */
+  /* required */
   --backdrop-position: absolute; /* or fixed */
+  /* required */
   --backdrop-z-index: 0;
+  /* optional */
+  --backdrop-animation-function: ease-in;
+  /* required, if animation property is true */
+  --backdrop-animation-duration: 300ms;
 }
 
 ```
@@ -135,21 +142,25 @@ Required: `true`, Type: `string` or `function firstFocus(): HTMLElement`
   
 It is used to focus to first element when modal is opened. You should assign `id` name.  
   
-If you `first-focus` element is a custom element or inside a custom element, You must implement `firstFocus` function to your `node` element.
+If `first-focus` element is a custom element or inside a custom element, You must implement `firstFocus` method to your `node` element. That is,  `node` element must be custom element if `first-focus` element is custom element.
 
 ```js
 
 class SampleModal extends HTMLElement {
+  get template() {
+    const template = document.createElement('template');
+    template.innerHTML = `
+      <div>
+        <button id="first-element">Button</button>
+      </div>
+    `;
+  }
+  
   constructor() {
     super();
 
-    const button = document.createElement('button');
-    button.setAttribute('id', 'first-element');
-    const div = document.createElement('div');
-    div.appendChild(button)
-
     const shadowRoot = this.attachShadow({ mode: 'open' });
-    shadowRoot.appendChild(div);
+    shadowRoot.appendChild(this.template.content.cloneNode(true));
   }
 
   /**
@@ -166,7 +177,7 @@ class SampleModal extends HTMLElement {
 
 #### app
 
-Required: `true`, Type: `class-name`  
+Required: `true`, Type: `string`  
   
 It is used to set `aria-hidden` to your `app` element. You should set main contents `id` name.
   
@@ -174,7 +185,7 @@ It is used to set `aria-hidden` to your `app` element. You should set main conte
 
 #### node
 
-Required: `true`, Type: `class-name`  
+Required: `true`, Type: `string`  
   
 It is used to move focus inside modal. You should set modal `id` name.
 
@@ -182,13 +193,14 @@ It is used to move focus inside modal. You should set modal `id` name.
 
 Required: `false`, Type: `boolean`, Default: `false`  
   
-You must specify this property to `true`, if you use custom element as `node` element.
+If `node` element is custom element, You must specify this property to `true`.
 
 #### animation
 
 Required: `false` Type: `boolean`, Default: `false`  
   
-If `true`, fade animation will run.
+If `true`, you can use animation. aria-modal run fade animation by default.
+If you want to use custom animation, you can use `active` and `hide` properties.
 
 #### duration
 
