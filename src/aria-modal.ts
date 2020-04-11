@@ -156,8 +156,9 @@ export default class AriaModalElement extends HTMLElement {
     this.firstFocus.focus();
   }
 
+  // Schedule the focusBack method to run after all process have been finished.
   private focusBack() {
-    this.focusAfterClose?.focus();
+    setTimeout(() => this.focusAfterClose?.focus());
   }
 
   private changeModalClassList(method: 'add' | 'remove', className: 'active' | 'hide') {
@@ -230,8 +231,8 @@ export default class AriaModalElement extends HTMLElement {
     } else {
       this.changeModalClassList('remove', 'active');
       this.changeModalClassList('remove', 'hide');
-      this.focusBack();
       this.style.visibility = 'hidden';
+      this.focusBack();
     }
   }
 
