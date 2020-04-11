@@ -6,6 +6,7 @@
 - Fixed README.md
 - Fixed performance
 - Reduced code size
+- Fixed bugs
 
 ## v2.5.1
 
