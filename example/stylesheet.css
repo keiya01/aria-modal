@@ -7,6 +7,7 @@
 	--backdrop-color: rgba(0, 0, 0, 0.3);
 	--backdrop-position: absolute;
 	--animation-function: ease-in;
+	--animation-duration: 300ms;
 }
 
 .wrapper {
