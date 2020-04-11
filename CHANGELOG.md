@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.6.0
+
+- **Breaking Change**: Deleted `duration` property and added `--animation-duration` CSS variables.
+- Fixed README.md
+- Fixed performance
+- Reduced code size
+
 ## v2.5.1
 
 - Fixed README.md
