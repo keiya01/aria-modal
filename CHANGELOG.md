@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.1
+
+- Fixed a bug that dialog does not open when `open` property is `true` at initial loading.
+
 ## v2.6.0
 
 - **Breaking Change**: Deleted `duration` property and added `--animation-duration` CSS variables.
