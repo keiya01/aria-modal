@@ -6,8 +6,7 @@
 	--backdrop-display: block;
 	--backdrop-color: rgba(0, 0, 0, 0.3);
 	--backdrop-position: absolute;
-	--animation-function: ease-in;
-	--animation-duration: 300ms;
+	--animation-delay: 300ms;
 }
 
 .wrapper {
@@ -23,7 +22,7 @@
 
 @keyframes slide-in {
 	from {
-		transform: translateY(-100%);
+		transform: translateY(-200%);
 	}
 	to {
 		transform: translateY(45%);
@@ -32,7 +31,7 @@
 
 .wrapper.active {
 	display: block;
-	animation: slide-in 500ms ease-in forwards;
+	animation: slide-in 300ms ease-in forwards;
 }
 
 @keyframes slide-out {

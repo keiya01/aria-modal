@@ -92,18 +92,14 @@ Using css variables, you can apply your style to `<aria-modal>`.
 ```css
 
 aria-modal {
-  /* required */
-  --backdrop-display: flex; /* or flex, inline-block, etc... */
-  /* required */
+  --backdrop-display: block; /* or flex, inline-block, etc... */
   --backdrop-color: rgba(0, 0, 0, 0.3); /* background-color for backdrop */
-  /* required */
   --backdrop-position: fixed; /* or fixed */
-  /* required */
-  --backdrop-z-index: 0;
-  /* optional */
-  --animation-function: ease-in;
-  /* required, if animation property is true */
+  --backdrop-z-index: none;
+  --animation-function: linear;
   --animation-duration: 300ms;
+  /* required, if fade property is false */
+  --animation-delay: none;
 }
 
 ```
@@ -197,16 +193,16 @@ If `node` element is custom element, You must specify this property to `true`.
 
 #### animation
 
-Required: `false` Type: `boolean`, Default: `false`  
+Required: `false`, Type: `boolean`, Default: `false`  
   
 If `true`, you can use animation. aria-modal run fade animation by default.
 If you want to use custom animation, you can use `active` and `hide` properties.
 
-#### duration
+#### fade
 
-Required: `false`, Type: `number`, Default: `300`(ms)  
-  
-animation duration time(ms)
+Required: `false`, Type: `boolean`, Default: `true`
+
+If `false`, default fade animation is disabled.
 
 #### active
 

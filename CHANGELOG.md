@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.6.3
+
+- Added `fade` property to opt out  default fade animation.
+- Added `--animation-delay` css variables to wait finishing your custom animation.
+- Added fallback to css variables.
+
 ## v2.6.2
 
 - Fixed css variables description on README.md

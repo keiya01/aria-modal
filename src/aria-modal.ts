@@ -15,9 +15,9 @@ export default class AriaModalElement extends HTMLElement {
     return `
       <style>
         :host {
-          display: var(--backdrop-display);
-          background-color: var(--backdrop-color);
-          position: var(--backdrop-position);
+          display: var(--backdrop-display, block);
+          background-color: var(--backdrop-color, rgba(0, 0, 0, 0.3));
+          position: var(--backdrop-position, fixed);
           top: 0;
           right: 0;
           bottom: 0;
@@ -27,8 +27,16 @@ export default class AriaModalElement extends HTMLElement {
           opacity: 0;
         }
 
+        :host([animation="true"]) {
+          will-change: opacity;
+        }
+
         :host([open="true"]) {
           opacity: 1;
+        }
+
+        :host([open="false"][fade="false"]) {
+          transition: opacity 0s var(--animation-delay);
         }
       </style>
     `;
@@ -121,6 +129,10 @@ export default class AriaModalElement extends HTMLElement {
 
   get hide() {
     return this.getAttribute('hide') || '';
+  }
+
+  get fade() {
+    return this.getAttribute('fade') !== 'false';
   }
 
   private getElementByAttribute(name: string) {
@@ -216,7 +228,11 @@ export default class AriaModalElement extends HTMLElement {
       this.style.visibility = 'visible';
       this.app.setAttribute('aria-hidden', 'true');
       this.setActiveStyle();
-      if(!this.animation || document.readyState === 'interactive') {
+      if(
+        !this.animation 
+        || document.readyState === 'interactive'
+        || !this.fade
+      ) {
         this.focusFirst();
       }
     } else {
@@ -340,9 +356,8 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private handleOnLoad = () => {
-    if(this.animation) {
-      this.style.transition = `opacity var(--animation-duration) var(--animation-function)`;
-      this.style.willChange = `opacity`;
+    if(this.animation && this.fade) {
+      this.style.transition = `opacity var(--animation-duration, 0.2s) var(--animation-function, linear) var(--animation-delay, 0s)`;
     }
   }
 }
