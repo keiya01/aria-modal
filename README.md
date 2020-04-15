@@ -93,17 +93,17 @@ Using css variables, you can apply your style to `<aria-modal>`.
 
 aria-modal {
   /* required */
-  --backdrop-display: block; /* or flex, inline-block, etc... */
+  --backdrop-display: flex; /* or flex, inline-block, etc... */
   /* required */
   --backdrop-color: rgba(0, 0, 0, 0.3); /* background-color for backdrop */
   /* required */
-  --backdrop-position: absolute; /* or fixed */
+  --backdrop-position: fixed; /* or fixed */
   /* required */
   --backdrop-z-index: 0;
   /* optional */
-  --backdrop-animation-function: ease-in;
+  --animation-function: ease-in;
   /* required, if animation property is true */
-  --backdrop-animation-duration: 300ms;
+  --animation-duration: 300ms;
 }
 
 ```
