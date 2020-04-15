@@ -104,6 +104,10 @@ aria-modal {
 
 ```
 
+##### Warning
+
+If you specified `--animation-delay` css variables, it may finish before take a your specified delay time. This case may happen if `transition` css property is contained on `aria-modal` and this property is finished.
+
 #### Tips
 
 If you want to set your modal to center, you can use `margin: auto;` and `flexbox` property.

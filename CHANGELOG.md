@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.4
+
+- Fixed README.ms
+
 ## v2.6.3
 
 - Added `fade` property to opt out  default fade animation.
