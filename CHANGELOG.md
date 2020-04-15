@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.2
+
+- Fixed css variables description on README.md
+
 ## v2.6.1
 
 - Fixed a bug that dialog does not open when `open` property is `true` at initial loading.
