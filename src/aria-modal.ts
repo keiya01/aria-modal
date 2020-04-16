@@ -34,10 +34,6 @@ export default class AriaModalElement extends HTMLElement {
         :host([open="true"]) {
           opacity: 1;
         }
-
-        :host([open="false"][fade="false"]) {
-          transition: opacity 0s var(--animation-delay);
-        }
       </style>
     `;
   }
@@ -225,6 +221,9 @@ export default class AriaModalElement extends HTMLElement {
 
   private handleOnOpen() {
     if(this.open) {
+      if(!this.fade) {
+        this.style.transition = '';
+      }
       this.style.visibility = 'visible';
       this.app.setAttribute('aria-hidden', 'true');
       this.setActiveStyle();
@@ -236,6 +235,9 @@ export default class AriaModalElement extends HTMLElement {
         this.focusFirst();
       }
     } else {
+      if(!this.fade) {
+        this.style.transition = 'opacity 0s var(--animation-delay)';
+      }
       this.app.setAttribute('aria-hidden', 'false');
       this.setHideStyle();
       if(!this.animation) {
@@ -245,7 +247,12 @@ export default class AriaModalElement extends HTMLElement {
     this.setTabIndex();
   }
 
-  private handleOnTransitionEnd = () => {
+  // TODO: Fix any type
+  private handleOnTransitionEnd = (e: any) => {
+    const id = `#${this.node.getAttribute('id')}`;
+    if(e.target.closest(id)) {
+      return;
+    }
     if(this.open) {
       this.focusFirst();
     } else {

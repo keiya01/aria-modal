@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.5
+
+- Fixed bugs
+
 ## v2.6.4
 
 - Fixed README.ms

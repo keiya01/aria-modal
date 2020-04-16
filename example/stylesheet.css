@@ -10,7 +10,7 @@
 }
 
 .wrapper {
-	display: none;
+	display: block;
 	text-align: center;
 	margin: 0 auto;
 	background-color: #eee;
@@ -18,34 +18,16 @@
 	width: 90%;
 	max-width: 600px;
 	border-radius: 10px;
-}
-
-@keyframes slide-in {
-	from {
-		transform: translateY(-200%);
-	}
-	to {
-		transform: translateY(45%);
-	}
+	transition: transform linear 300ms;
+	transform: translate3d(0, -150%, 0);
 }
 
 .wrapper.active {
-	display: block;
-	animation: slide-in 300ms ease-in forwards;
-}
-
-@keyframes slide-out {
-	from {
-		transform: translateY(45%);
-	}
-	to {
-		transform: translateY(-100%);
-	}
+	transform: translate3d(0, 45%, 0);
 }
 
 .wrapper.hide {
-	display: block;
-	animation: slide-out 500ms ease forwards;
+	transform: translate3d(0, -150%, 0);
 }
 
 .title {
