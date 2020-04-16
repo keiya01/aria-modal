@@ -216,6 +216,12 @@ Required: `false`, Type: `string`
   
 `hide` is class name that is added when `open` props is changed to `false`.
 
+#### disabled
+
+Required: `false`, Type: `boolean`  
+  
+If true, disable clicking on the backdrop.
+
 #### aria-label or aria-labelledby
 
 Required: `true`, Type: `string`  

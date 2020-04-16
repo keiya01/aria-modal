@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.6.6
+
+- Fixed bugs
+- Added `disabled` property that is not to prevent hide when clicked backdrop.
+
 ## v2.6.5
 
 - Fixed bugs
