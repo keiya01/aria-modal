@@ -161,14 +161,14 @@ export default class AriaModalElement extends HTMLElement {
       // TODO: Fix error message to describe more detail
       throw new Error('firstFocus could not find.');
     }
-    this.firstFocus.focus();
+    setTimeout(() => this.firstFocus!.focus());
   }
 
   // Schedule the focusBack method to run after all process have been finished.
   private focusBack() {
     setTimeout(() => {
       if(this.focusAfterClose) {
-        this.focusAfterClose.focus();
+        setTimeout(() => this.focusAfterClose!.focus());
       }
     });
   }
