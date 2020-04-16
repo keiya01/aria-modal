@@ -131,6 +131,10 @@ export default class AriaModalElement extends HTMLElement {
     return this.getAttribute('fade') !== 'false';
   }
 
+  get disabled() {
+    return this.getAttribute('disabled') === 'true';
+  }
+
   private getElementByAttribute(name: string) {
     const id = this.getAttribute(name);
     if(!id) {
@@ -317,6 +321,9 @@ export default class AriaModalElement extends HTMLElement {
 
   // TODO: Fix any type
   private handleOnClickBackdrop = (e: any) => {
+    if(this.disabled) {
+      return;
+    }
     const id = `#${this.node.getAttribute('id')}`;
     if(!e.target.closest(id)) {
       this.open = false;
