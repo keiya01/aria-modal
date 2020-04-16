@@ -331,6 +331,9 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private handleOnKeyup = (e: KeyboardEvent) => {
+    if(this.disabled) {
+      return;
+    }
     const key = e.keyCode;
     if(key === 27 && this.open) {
       this.open = false;
