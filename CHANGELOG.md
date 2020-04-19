@@ -1,5 +1,9 @@
 # Changelog
 
+## v2.6.8
+
+- Fixed bugs
+
 ## v2.6.7
 
 - Fixed bugs

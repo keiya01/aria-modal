@@ -76,23 +76,36 @@ export default class AriaModalElement extends HTMLElement {
       this.style.visibility = 'hidden';
     }
 
+    if(this.shadow) {
+      /** 
+       * Load child element that is CustomElement.
+       * Because if child element is CustomElement, this element is loaded after aria-modal is loaded.
+       * */
+      window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
+    } else {
+      this.firstFocus = this.getElementByAttribute('first-focus');
+    }
+
+    if(this.animation && this.fade) {
+      this.style.transition = `opacity var(--animation-duration, 0.2s) var(--animation-function, linear) var(--animation-delay, 0s)`;
+    }
+
     document.addEventListener('keyup', this.handleOnKeyup);
     this.addEventListener('click', this.handleOnClickBackdrop);
     this.addEventListener('transitionend', this.handleOnTransitionEnd);
     this.shadowRoot!.getElementById('first-descendant')?.addEventListener('focus', this.moveFocusToLast, true);
     this.shadowRoot!.getElementById('last-descendant')?.addEventListener('focus', this.moveFocusToFirst, true);
-    window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
-    window.addEventListener('load', this.handleOnLoad);
   }
   
   disconnectedCallback() {
+    if(this.shadow) {
+      window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
+    }
     document.removeEventListener('keyup', this.handleOnKeyup);
     this.removeEventListener('click', this.handleOnClickBackdrop);
     this.removeEventListener('transitionend', this.handleOnTransitionEnd);
     this.shadowRoot?.getElementById('first-descendant')?.removeEventListener('focus', this.moveFocusToLast, true);
     this.shadowRoot?.getElementById('last-descendant')?.removeEventListener('focus', this.moveFocusToFirst, true);
-    window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
-    window.removeEventListener('load', this.handleOnLoad);
   }
   
   get open() {
@@ -360,21 +373,11 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private handleOnDOMContentLoaded = () => {
-    if(this.shadow) {
-      this.setShadowNode();
-      this.setFirstFocus();
-    } else {
-      this.firstFocus = this.getElementByAttribute('first-focus');
-    }
+    this.setShadowNode();
+    this.setFirstFocus();
 
     if(this.open) {
       this.handleOnOpen();
-    }
-  }
-
-  private handleOnLoad = () => {
-    if(this.animation && this.fade) {
-      this.style.transition = `opacity var(--animation-duration, 0.2s) var(--animation-function, linear) var(--animation-delay, 0s)`;
     }
   }
 }
