@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.6.9
+
+- Removed `node` property
+- Removed `shadow` property
+- Fixed bugs
+
 ## v2.6.8
 
 - Fixed bugs

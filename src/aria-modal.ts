@@ -1,15 +1,7 @@
 type ModalNode = HTMLElement & { firstFocus?: () => HTMLElement };
-
-/**
- * TODO
- * - `scroll` property to accept scroll
- * - `disable` property to make disable when click backdrop
- */
-
 export default class AriaModalElement extends HTMLElement {
-  private firstFocus?: HTMLElement;
   private focusAfterClose: HTMLElement | null;
-  private shadowNode?: HTMLElement;
+  private loaded?: boolean;
 
   get styles() {
     return `
@@ -65,29 +57,18 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   attributeChangedCallback(name: string) {
-    if(name === 'open' && this.firstFocus) {
-      this.handleOnOpen();
+    if(name === 'open' && this.loaded) {
+      return this.handleOnOpen();
     }
+    this.loaded = true;
   }
 
   connectedCallback() {
-    if(!this.open) {
-      this.open = false;
-      this.style.visibility = 'hidden';
-    }
-
-    if(this.shadow) {
-      /** 
-       * Load child element that is CustomElement.
-       * Because if child element is CustomElement, this element is loaded after aria-modal is loaded.
-       * */
+    if(this.open) {
       window.addEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
     } else {
-      this.firstFocus = this.getElementByAttribute('first-focus');
-    }
-
-    if(this.animation && this.fade) {
-      this.style.transition = `opacity var(--animation-duration, 0.2s) var(--animation-function, linear) var(--animation-delay, 0s)`;
+      this.open = false;
+      this.style.visibility = 'hidden';
     }
 
     document.addEventListener('keyup', this.handleOnKeyup);
@@ -98,7 +79,7 @@ export default class AriaModalElement extends HTMLElement {
   }
   
   disconnectedCallback() {
-    if(this.shadow) {
+    if(this.open) {
       window.removeEventListener('DOMContentLoaded', this.handleOnDOMContentLoaded);
     }
     document.removeEventListener('keyup', this.handleOnKeyup);
@@ -121,11 +102,11 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   get node() {
-    return this.getElementByAttribute('node') as ModalNode;
-  }
-
-  get shadow() {
-    return this.getAttribute('shadow') === 'true';
+    const elm = this.shadowRoot!.querySelector('slot')!.assignedElements()[0];
+    if(!elm) {
+      throw new Error('Could not find element to be specified to slot element.');
+    }
+    return elm as ModalNode;
   }
 
   get animation() {
@@ -146,6 +127,17 @@ export default class AriaModalElement extends HTMLElement {
 
   get disabled() {
     return this.getAttribute('disabled') === 'true';
+  }
+
+  get shadowNode() {
+    if(!this.node.shadowRoot) {
+      throw new Error('node property is not custom element.');
+    }
+    const child = this.node.shadowRoot.children.item(0);
+    if(!child) {
+      throw new Error('Element that is specified as slot can contain only 1 child element.');
+    }
+    return child as ModalNode;
   }
 
   private getElementByAttribute(name: string) {
@@ -174,11 +166,16 @@ export default class AriaModalElement extends HTMLElement {
     if(this.focusAfterClose.shadowRoot) {
       this.focusAfterClose = this.getActiveElement(this.focusAfterClose.shadowRoot!.activeElement as HTMLElement);
     }
-    if(!this.firstFocus) {
-      // TODO: Fix error message to describe more detail
-      throw new Error('firstFocus could not find.');
+    let firstFocus: HTMLElement | null = null;
+    if(this.node.shadowRoot) {
+      if(!this.node.firstFocus) {
+        throw new Error('firstFocus function could not find. If you use shadow dom, please define firstFocus function.')
+      }
+      firstFocus = this.node.firstFocus();
+    } else {
+      firstFocus = this.getElementByAttribute('first-focus');
     }
-    setTimeout(() => this.firstFocus!.focus());
+    setTimeout(() => firstFocus!.focus());
   }
 
   // Schedule the focusBack method to run after all process have been finished.
@@ -190,18 +187,15 @@ export default class AriaModalElement extends HTMLElement {
     });
   }
 
-  private changeModalClassList(method: 'add' | 'remove', className: 'active' | 'hide') {
-    if(!this[className]) {
+  private changeModalClassList(method: 'add' | 'remove', props: 'active' | 'hide') {
+    if(!this[props]) {
       return;
     }
     
-    if(this.shadow) {
-      if(!this.shadowNode) {
-        throw new Error('shadowNode could not find. Make sure that `node` property element is custom element.');
-      }
-      this.shadowNode.classList[method](this[className]);
+    if(this.node.shadowRoot) {
+      this.shadowNode.classList[method](this[props]);
     } else {
-      this.node.classList[method](this[className]);
+      this.node.classList[method](this[props]);
     }
   }
 
@@ -237,6 +231,10 @@ export default class AriaModalElement extends HTMLElement {
   }
 
   private handleOnOpen() {
+    if(this.animation && this.fade && !this.style.transition) {
+      this.style.transition = `opacity var(--animation-duration, 0.2s) var(--animation-function, linear) var(--animation-delay, 0s)`;
+    }
+
     if(this.open) {
       if(!this.fade) {
         this.style.transition = '';
@@ -266,8 +264,7 @@ export default class AriaModalElement extends HTMLElement {
 
   // TODO: Fix any type
   private handleOnTransitionEnd = (e: any) => {
-    const id = `#${this.node.getAttribute('id')}`;
-    if(e.target.closest(id)) {
+    if(e.target !== this) {
       return;
     }
     if(this.open) {
@@ -282,7 +279,7 @@ export default class AriaModalElement extends HTMLElement {
 
   private isFocusable(target: HTMLElement, element: HTMLElement) {
     let activeElement = null;
-    if(this.shadow) {
+    if(this.node.shadowRoot) {
       activeElement = this.node.shadowRoot?.activeElement;
     } else {
       activeElement = document.activeElement;
@@ -314,31 +311,28 @@ export default class AriaModalElement extends HTMLElement {
     }
   }
   
-  private moveFocusToFirst = (e: FocusEvent) => {
+  private moveFocus(e: FocusEvent,callback: (target: HTMLElement, node: ModalNode) => void) {
     const target = e.target as HTMLElement;
     let node = this.node;
-    if(this.shadow && this.shadowNode) {
+    if(this.node.shadowRoot) {
       node = this.shadowNode;
     }
-    this.focusFirstElement(target, node);
+    callback(target, node);
+  }
+
+  private moveFocusToFirst = (e: FocusEvent) => {
+    this.moveFocus(e, this.focusFirstElement.bind(this));
   }
   
   private moveFocusToLast = (e: FocusEvent) => {
-    const target = e.target as HTMLElement;
-    let node = this.node;
-    if(this.shadow && this.shadowNode) {
-      node = this.shadowNode;
-    }
-    this.focusLastElement(target, node);
+    this.moveFocus(e, this.focusLastElement.bind(this));
   }
 
-  // TODO: Fix any type
-  private handleOnClickBackdrop = (e: any) => {
+  private handleOnClickBackdrop = (e: MouseEvent) => {
     if(this.disabled) {
       return;
     }
-    const id = `#${this.node.getAttribute('id')}`;
-    if(!e.target.closest(id)) {
+    if(e.target === this) {
       this.open = false;
     }
   }
@@ -354,30 +348,7 @@ export default class AriaModalElement extends HTMLElement {
     }
   }
 
-  private setShadowNode() {
-    if(!this.node.shadowRoot) {
-      throw new Error('node property is not custom element.');
-    }
-    const child = this.node.shadowRoot.children.item(0);
-    if(!child) {
-      throw new Error('Element that is specified by node property can contain just 1 child element.');
-    }
-    this.shadowNode = child as HTMLElement;
-  }
-
-  private setFirstFocus() {
-    if(!this.node.firstFocus) {
-      throw new Error('firstFocus function could not find. If you use shadow dom, please define firstFocus function.')
-    }
-    this.firstFocus = this.node.firstFocus();
-  }
-
   private handleOnDOMContentLoaded = () => {
-    this.setShadowNode();
-    this.setFirstFocus();
-
-    if(this.open) {
-      this.handleOnOpen();
-    }
+    this.handleOnOpen();
   }
 }

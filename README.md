@@ -53,7 +53,6 @@ Please see following example.
 <aria-modal
   app="app"
   first-focus="button"
-  node="node"
   animation="true"
   active="active"
 >
@@ -71,16 +70,14 @@ If you use custom element, see the following code.
 
 <aria-modal
   app="app"
-  node="node"
   active="active"
-  shadow="true"
   animation="true"
 >
   <!-- 
     <simple-modal> must be contained `firstFocus` function that return HTMLElement.
     And You must set role and aria-* attributes to your modal.
   -->
-  <simple-modal id="node" slot="modal"></simple-modal>
+  <simple-modal slot="modal"></simple-modal>
 </aria-modal>
 
 ```
@@ -138,7 +135,7 @@ Required: `true`, Type: `string` or `function firstFocus(): HTMLElement`
   
 It is used to focus to first element when modal is opened. You should assign `id` name.  
   
-If `first-focus` element is a custom element or inside a custom element, You must implement `firstFocus` method to your `node` element. That is,  `node` element must be custom element if `first-focus` element is custom element.
+If `first-focus` element is a custom element or inside a custom element, You must implement `firstFocus` method to your slotted element. That is, slotted element must be custom element if `first-focus` element is custom element.
 
 ```js
 
@@ -178,18 +175,6 @@ Required: `true`, Type: `string`
 It is used to set `aria-hidden` to your `app` element. You should set main contents `id` name.
   
 **Notice**:  Don't contain `aria-modal` inside main contents. If you contain `aria-modal` to your main contents, screen readers can not find `aria-modal`.
-
-#### node
-
-Required: `true`, Type: `string`  
-  
-It is used to move focus inside modal. You should set modal `id` name.
-
-#### shadow
-
-Required: `false`, Type: `boolean`, Default: `false`  
-  
-If `node` element is custom element, You must specify this property to `true`.
 
 #### animation
 
